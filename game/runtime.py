@@ -1,5 +1,7 @@
 import pygame
 
+from entities.player.player import Player
+
 
 class Runtime():
     def __init__(self, window_size):
@@ -15,8 +17,8 @@ class Runtime():
         self.enemies = None   # Liste des ennemis
         self.power_ups = None # Liste des power-ups
 
-    def setup(self):
-        self.player = ...
+    def setup(self, player: Player):
+        self.player = player
         self.platforms = ...
         self.enemies = ...
         self.power_ups = ...
@@ -31,7 +33,11 @@ class Runtime():
 
             # Mise à jour et rendu des entités
 
+            self.player.draw(self.screen)
+
             pygame.display.flip()
             self.dt = self.clock.tick(60) / 1000
+
+            self.player.update()
 
         pygame.quit()
