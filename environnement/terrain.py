@@ -6,7 +6,7 @@ from pygame.sprite import Sprite
 class Plateforme:
     def __init__(self, coor):
         self.coordonnees = coor
-
+        self.rect = pygame.Rect(coor[0], coor[1], 50, 50)  # On crée un rect basé sur coordonnees
     def get_coor(self):
         return self.coordonnees
 
@@ -15,37 +15,56 @@ class Plateforme:
         x2 = random.randint(-1, 1)
         y1 = self.coordonnees[1]
         y2 = random.randint(-1, 1)
+
+        #avec GPT pour éviter que les plateformes sortent de la fenêtre
+        x1 = max(0, min(x1, self.width - 50))
+        y1 = max(0, min(y1, self.height - 50))
+
         self.coordonnees = (x1 + x2, y1 + y2)
+        self.rect.topleft = self.coordonnees
 
     def set_y(self, y):
         self.coordonnees = (self.coordonnees[0], y)
-
+        self.rect.y = y
     def set_x(self, x):
         self.coordonnees = (x, self.coordonnees[1])
-
+        self.rect.x = x
 
 class Voitures(Plateforme, pygame.sprite.Sprite):
-    def __init__(self, coor, x, y):
+    def __init__(self, coor, x, y, width, height):
         Plateforme.__init__(self, coor)
-        self.image = pygame.image.load("C:/Users/audem/Downloads/voiture.jpg")
+
+        # Empêcher de sortir de l'écran
+        x = max(0, min(x, width - 50))
+        y = max(0, min(y, height - 50))
+        self.image = pygame.image.load("C:/Users/audem/Downloads/VOITURE.jpg")
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
-        # Redimensionner l'image (par exemple, la redimensionner à 50x60) AVEC GPT
-        self.image = pygame.transform.scale(self.image, (70, 60))  # Redimensionner à 50x60 pixels
+        # Redimensionner l'image  AVEC GPT
+        self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect()  # Recréer le rect avec la nouvelle taille de l'image
         self.rect.topleft = (x, y)
 
+    def get_coor(self):
+        return self.rect.topleft
 
 class Trottoir(Plateforme, pygame.sprite.Sprite):
-    def __init__(self, coor, x, y):
+    def __init__(self, coor, x, y, width, height):
         Plateforme.__init__(self, coor)
-        self.image = pygame.image.load("C:/Users/audem/Downloads/trottoir.jpg")
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
-        # Redimensionner l'image (par exemple, la redimensionner à 50x60) AVEC GPT
-        self.image = pygame.transform.scale(self.image, (50, 50))  # Redimensionner à 50x60 pixels
+
+        # Empêcher de sortir de l'écran
+        x = max(0, min(x, width - 50))
+        y = max(0, min(y, height - 50))
+
+        self.image = pygame.image.load("C:/Users/audem/Downloads/TROTTOIR.jpg")
+
+        # Redimensionner l'image  AVEC GPT
+        self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect()  # Recréer le rect avec la nouvelle taille de l'image
         self.rect.topleft = (x, y)
+
+    def get_coor(self):
+        return self.rect.topleft
 
 class Banc(Plateforme):
     def __init__(self, coor):
@@ -68,43 +87,76 @@ class Elt_Sol:
         self.coordonnees = (x, 0)
 
 
-class Escaliers(Elt_Sol):
-    def __init__(self, coor):
+class Escaliers(Elt_Sol, pygame.sprite.Sprite):
+    def __init__(self, coor, x, y):
         Elt_Sol.__init__(self, coor)
+        self.image = pygame.image.load("C:/Users/audem/Downloads/ESCALIER.jpg")
+        # Redimensionner l'image  AVEC GPT
+        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.rect = self.image.get_rect()  # Recréer le rect avec la nouvelle taille de l'image
+        self.rect.topleft = (x, y)
 
+    def get_coor(self):
+        return self.rect.topleft
 
-class Portes(Elt_Sol):
-    def __init__(self, coor):
+class Portes(Elt_Sol, pygame.sprite.Sprite):
+    def __init__(self, coor, x, y):
         Elt_Sol.__init__(self, coor)
+        self.image = pygame.image.load("C:/Users/audem/Downloads/PORTE.jpg")
 
+        # Redimensionner l'image  AVEC GPT
+        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.rect = self.image.get_rect()  # Recréer le rect avec la nouvelle taille de l'image
+        self.rect.topleft = (x, y)
+
+    def get_coor(self):
+        return self.rect.topleft
 
 class PU:
-    def __init__(self, plateformes, sol):
-        self.sol = sol
-        if plateformes and random.choice([True, False]):
-            plateforme = random.choice(plateformes)
-            self.coordonnees = plateforme.get_coor()
-        else:
-            x = random.randint(0, sol - 1)  # sol est ici le sol du jeu
-            self.coordonnees = (x, 0)
+    def __init__(self, trottoirs, voitures, sol):
 
+        self.coordonnees = (0,0)
+        plateformes = trottoirs + voitures
+        #les PU seront soit sur les platefomes soit sur le sol, elles seront placées de manière aléatoire fait avec GPT
+        if plateformes:
+            plateforme = random.choice(plateformes)
+            x, y = plateforme.get_coor()
+            self.coordonnees = (x, y-50)
+        else:
+            x = random.randint(0, sol - 50)
+            self.coordonnees = (x, sol)
+
+
+        self.image = None  # Défini pour éviter les erreurs
+        self.rect = pygame.Rect(self.coordonnees[0], self.coordonnees[1], 50, 50)  # Crée un rect directement
+        self.rect.topleft = self.coordonnees
+        print(f"Plateforme choisie: {plateforme.get_coor()} - PU placé à {self.coordonnees}")
     def get_coor(self):
         return self.coordonnees
 
 
-class Pistolet(PU):
-    def __init__(self, plateformes, sol):
-        PU.__init__(self, plateformes, sol)
+class Pistolet(PU, pygame.sprite.Sprite):
+    def __init__(self, trottoirs, voitures, sol):
+        PU.__init__(self, trottoirs, voitures, sol)
+        self.image = pygame.image.load("C:/Users/audem/Downloads/PISTOLET.jpg")
+        self.image = pygame.transform.scale(self.image, (50, 50))  # Redimensionner
+        self.rect.topleft = self.coordonnees
 
 
-class Crayon(PU):
-    def __init__(self, plateformes, sol):
-        PU.__init__(self, plateformes, sol)
+class Crayon(PU, pygame.sprite.Sprite):
+    def __init__(self, trottoirs, voitures, sol):
+        PU.__init__(self, trottoirs, voitures, sol)
+        self.image = pygame.image.load("C:/Users/audem/Downloads/CRAYON.jpg")
+        self.image = pygame.transform.scale(self.image, (50, 50))  # Redimensionner
+        self.rect.topleft = self.coordonnees
 
 
-class Kit_Med(PU):
-    def __init__(self, plateformes, sol):
-        PU.__init__(self, plateformes, sol)
+class Kit_Med(PU, pygame.sprite.Sprite):
+    def __init__(self, trottoirs, voitures, sol):
+        PU.__init__(self, trottoirs, voitures, sol)
+        self.image = pygame.image.load("C:/Users/audem/Downloads/MK.jpg")
+        self.image = pygame.transform.scale(self.image, (50, 50))  # Redimensionner
+        self.rect.topleft = self.coordonnees
 
 
 class Environnement:
@@ -120,77 +172,35 @@ class Environnement:
         self.crayons = []
 
         for a in range(n_trottoirs):
-            x, y = random.randint(0, width - 1), random.randint(0, height - 1)
+            x, y = random.randint(0, width - 50 ), random.randint(0, height - 50)
             coor = (x, y)
-            self.trottoirs.append(Trottoir(coor, x, y))
+            self.trottoirs.append(Trottoir(coor, x, y, width, height))
 
         for b in range(n_voitures):
-            x, y = random.randint(0, width - 1), random.randint(0, height - 1)
+            x, y = random.randint(0, width - 50), random.randint(0, height- 50)
             coor = (x, y)
-            self.voitures.append(Voitures(coor, x, y))
+            self.voitures.append(Voitures(coor, x, y, width, height))
 
         for c in range(n_escaliers):
-            coor = (random.randint(0, width - 1), random.randint(0, height - 1))
-            self.escaliers.append(Escaliers(coor))
+            x= (random.randint(0, width - 50) )
+            y = height - 50
+            coor = (x, y)
+            self.escaliers.append(Escaliers(coor, x, y))
 
         for d in range(n_portes):
-            coor = (random.randint(0, width - 1), random.randint(0, height - 1))
-            self.portes.append(Portes(coor))
+            x = (random.randint(0, width - 50))
+            y = height - 50
+            coor = (x, y)
+            self.portes.append(Portes(coor, x, y))
 
         for e in range(n_crayon):
-            coor = (random.randint(0, width - 1), random.randint(0, height - 1))
-            self.crayons.append(PU([Trottoir((0, 0), x, y)], 10))  # List of platforms needed
+            self.crayons.append(Crayon(self.trottoirs, self.voitures,self.height))
 
         for f in range(n_KMs):
-            coor = (random.randint(0, width - 1), random.randint(0, height - 1))
-            self.KMs.append(PU([Trottoir((0, 0), x, y)], 10))  # List of platforms needed
+            self.KMs.append(Kit_Med(self.trottoirs, self.voitures, self.height))
 
         for g in range(n_pistolets):
-            coor = (random.randint(0, width - 1), random.randint(0, height - 1))
-            self.pistolets.append(PU([Trottoir((0, 0), x, y)], 10))  # List of platforms needed
-
-    def get_coor_n_trottoirs(self):
-        coor = []
-        for trottoir in self.trottoirs:
-            coor.append(trottoir.get_coor())
-        return coor
-
-    def get_coor_n_escaliers(self):
-        coor = []
-        for escalier in self.escaliers:
-            coor.append(escalier.get_coor())
-        return coor
-
-    def get_coor_n_portes(self):
-        coor = []
-        for porte in self.portes:
-            coor.append(porte.get_coor())
-        return coor
-
-    def get_coor_n_KMs(self):
-        coor = []
-        for KM in self.KMs:
-            coor.append(KM.get_coor())
-        return coor
-
-    def get_coor_n_crayon(self):
-        coor = []
-        for crayon in self.crayons:
-            coor.append(crayon.get_coor())
-        return coor
-
-    def get_coor_n_pistolets(self):
-        coor = []
-        for pistolet in self.pistolets:
-            coor.append(pistolet.get_coor())
-        return coor
-
-    def get_coor_n_voitures(self):
-        coor = []
-        for voiture in self.voitures:
-            coor.append(voiture.get_coor())
-        return coor
-
+            self.pistolets.append(Pistolet(self.trottoirs,self.voitures, self.height))
 
 class Game:
     def __init__(self, window_size):
@@ -226,13 +236,20 @@ class Game:
 
             self.screen.fill("white")
 
-            # Dessiner toutes les voitures à leur position
             for voiture in self.voitures:
                 self.screen.blit(voiture.image, voiture.rect.topleft)
             for trottoir in self.trottoirs:
                 self.screen.blit(trottoir.image, trottoir.rect.topleft)
-
-
+            for porte in self.portes:
+                self.screen.blit(porte.image, porte.rect.topleft)
+            for escaliers in self.escaliers:
+                self.screen.blit(escaliers.image, escaliers.rect.topleft)
+            for pistolet in self.pistolets:
+                self.screen.blit(pistolet.image, pistolet.rect.topleft)
+            for crayon in self.crayons:
+                self.screen.blit(crayon.image, crayon.rect.topleft)
+            for KM in self.KMs:
+                self.screen.blit(KM.image, KM.rect.topleft)
 
             pygame.display.flip()
             self.dt = self.clock.tick(60) / 1000
@@ -241,8 +258,8 @@ class Game:
 
 
 if __name__ == "__main__":
-    game = Game((1380, 800))
-    env = Environnement(30, 40, 3, 2, 9, 1, 3, 9, 10)
+    game = Game((1380, 1000))
+    env = Environnement(1380, 1000, 10, 10, 20, 1, 10, 9, 10)
     game.setup(env)
     game.run()
 
