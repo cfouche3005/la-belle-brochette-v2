@@ -105,6 +105,7 @@ class Game:
                 x_pos, y_pos, random.randint(100, 200), 20)
 
             self.plateformes.add(plateforme)
+
     def is_plateforme_overlapping(self, x, y):
         """Vérifie si la nouvelle plateforme chevauche une autre plateforme."""
         for platform in self.plateformes:
@@ -120,7 +121,6 @@ class Game:
 
             if not self.is_element_overlapping(pu):
                 self.pu_group.add(pu)
-
     def apparitions_elements_au_sol(self, nombre_elements=3):
         self.element_group.empty()  # Réinitialiser les éléments existants
         for _ in range(nombre_elements):
@@ -133,6 +133,13 @@ class Game:
                 x_pos = random.randint(50, screen_width - 50)
                 element.rect.x = x_pos  # Mettre à jour la position
             self.element_group.add(element)
+
+    def is_elt_sol_overlapping(self, x, y):
+        for ES in self.element_group:
+            if ES.rect.colliderect(pygame.Rect(x, y, ES.width, ES.height)):
+                return True
+        return False
+
 
     def is_element_overlapping(self, new_element):
         """Vérifie si un élément est en superposition avec un autre."""
