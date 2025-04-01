@@ -125,16 +125,6 @@ class Game:
             self.pu_group.add(pu)
 
 
-    def check_chute_trou(self): #fait avec GPT
-        for trou in self.element_group:
-            if isinstance(trou, Trou) and self.player.rect.colliderect(trou.rect):
-                self.player_dies()  # Le joueur meurt si collision avec le trou
-
-    def player_dies(self): #fait avec GPT
-        print("Le joueur est tombé dans un trou et est mort!")
-        self.isRunning = False
-
-
     def run(self):
         background = pygame.image.load("C:/Users/audem/Downloads/fond.png").convert_alpha()
         background = pygame.transform.scale(background, (screen_width, screen_height))
@@ -155,7 +145,7 @@ class Game:
             self.pu_group.draw(self.screen)
             self.element_group.draw(self.screen)
 
-            self.check_chute_trou()
+          
             pygame.display.flip()
             self.clock.tick(60)
             compteur += 1
