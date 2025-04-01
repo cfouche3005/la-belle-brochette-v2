@@ -23,7 +23,8 @@ elements_sol_fixes = [
     (1000, 535, "escalier"),
     (500, 535, "escalier"),
     (40, 535, "porte"),
-    (2000, 535, "escalier")
+    (2000, 535, "escalier"),
+    (700, 535, "trou")
 ]
 
 sol_y = 535  # Hauteur fixe pour les éléments au sol et les PU
@@ -60,6 +61,11 @@ class Escalier(ElementAuSol):
     def __init__(self, x, y):
         super().__init__(x, y, 50, 50, "C:/Users/audem/Downloads/ESCALIER.jpg")
 
+class Trou(ElementAuSol):  # Nouveau type d'élément : Trou
+    def __init__(self, x, y):
+        # Tu peux choisir une image de ton choix pour le trou, ici on suppose qu'une image "TROU.jpg" existe
+        ElementAuSol.__init__(self, x, y, 50, 50, "C:/Users/audem/Downloads/TROU.jpg")
+
 class PU(pygame.sprite.Sprite):
     def __init__(self, x, y_platform, image_path):
         super().__init__()
@@ -80,6 +86,7 @@ class Pistolet(PU):
 class Kit_Med(PU):
     def __init__(self, x, y_platform):
         super().__init__(x, y_platform, "C:/Users/audem/Downloads/MK.jpg")
+
 
 class Game:
     def __init__(self):
@@ -105,9 +112,10 @@ class Game:
         for x, y, type_element in elements_sol_fixes:
             if type_element == "porte":
                 element = Porte(x, sol_y)
-            else:
+            elif type_element == "trou":
+                element = Trou(x, sol_y)
+            elif type_element == "escalier":
                 element = Escalier(x, sol_y)
-
             self.element_group.add(element)
 
     def apparitions_PUs(self):
@@ -115,6 +123,17 @@ class Game:
         for x, y in [(1550, 250), (800, 250), (2000, 400), (1050, 250), (800, 250)]:  # X fixe, Y de la plateforme
             pu = random.choice([Pistolet(x, y), Kit_Med(x, y)])
             self.pu_group.add(pu)
+
+
+    def check_chute_trou(self): #fait avec GPT
+        for trou in self.element_group:
+            if isinstance(trou, Trou) and self.player.rect.colliderect(trou.rect):
+                self.player_dies()  # Le joueur meurt si collision avec le trou
+
+    def player_dies(self): #fait avec GPT
+        print("Le joueur est tombé dans un trou et est mort!")
+        self.isRunning = False
+
 
     def run(self):
         background = pygame.image.load("C:/Users/audem/Downloads/fond.png").convert_alpha()
@@ -136,6 +155,7 @@ class Game:
             self.pu_group.draw(self.screen)
             self.element_group.draw(self.screen)
 
+            self.check_chute_trou()
             pygame.display.flip()
             self.clock.tick(60)
             compteur += 1
