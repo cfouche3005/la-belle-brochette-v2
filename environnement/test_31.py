@@ -216,6 +216,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.isRunning = False
 
+
             if compteur % 120 == 0:
                 self.apparitions_PUs()
 
