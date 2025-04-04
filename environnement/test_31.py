@@ -2,7 +2,7 @@ import pygame
 import random
 
 # Définition des dimensions de l'écran
-screen_width = 1500
+screen_width = 1450
 screen_height = 700
 screen = pygame.display.set_mode((screen_width, screen_height))
 
@@ -191,7 +191,7 @@ class Game:
 
     def apparitions_PUs(self):
         self.pu_group.empty()
-        for x, y in [(300, 500),  (1000, 250), (2500, 250), (3000, 535),
+        for x, y in [(300, 500),  (1050, 450), (1640, 500), (3550, 535),
                      (3500, 535), (5500, 450), (6050, 450), (9050, 400), (10050, 250), (12050, 400), (13050, 250), (15500, 400),
                      (35000, 535)]:  # X fixe, Y de la plateforme
             pu = random.choice([Pistolet(x, y), Kit_Med(x, y), Piece(x,y)])
