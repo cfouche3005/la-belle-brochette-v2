@@ -9,7 +9,7 @@ if __name__ == '__main__':
     # Create a player instance
 
     env = Env(1280, 720, "assets/bg.jpeg")
-    camera = Camera(1280, 720)
+    camera = Camera(1280, 720, 1280*2)
     player = Player(100, 100, 50, 50)
 
     game.setup(player, env, camera)

@@ -5,6 +5,7 @@ from entities.player.player import Player
 from game.env import Env
 from game.camera import Camera
 from menu.menu import Menu
+from entities.staticblock import StaticBlock
 
 
 class Runtime():
@@ -101,6 +102,9 @@ class Runtime():
         self.power_ups = ...
         self.env = env
         self.camera = camera
+        self.static_blocks = []
+        blue_block = StaticBlock(2000, 200, 100, 100)
+        self.static_blocks.append(blue_block)
 
     def run(self):
         while self.isRunning:
@@ -121,12 +125,17 @@ class Runtime():
                 self.menu.draw()
                 self.menu.detect_click(events)
             elif self.gameState == "game":
-                self.env.draw(self.screen)
-                # Mise à jour et rendu des entités
-
-                self.player.draw(self.screen)
+                # self.env.draw(self.screen)
+                # # Mise à jour et rendu des entités
+                #
+                # self.player.draw(self.screen)
+                bg_rect = pygame.Rect(self.env.x + self.camera.offset_x, self.env.y, self.env.width, self.env.height)
+                self.screen.blit(self.env.background, bg_rect)
+                self.player.draw(self.screen, self.camera)
 
                 self.player.update(self.env, self.camera)
+                for block in self.static_blocks:
+                    block.draw(self.screen, self.camera)
             if self.gameState == "pause":
                 self.pauseMenu.draw()
                 self.pauseMenu.detect_click(events)

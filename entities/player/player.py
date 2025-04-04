@@ -21,42 +21,39 @@ class Player(pygame.sprite.Sprite):
 
     def update(self, env: Env, camera: Camera):
         keys = pygame.key.get_pressed()
-        tempX = self.rect.x
+
+        # Déplacement du joueur dans le monde
         if keys[pygame.K_LEFT]:
-            tempX-= self.speed
+            self.rect.x -= self.speed
         if keys[pygame.K_RIGHT]:
-            tempX += self.speed
+            self.rect.x += self.speed
         if keys[pygame.K_UP]:
             self.jump()
 
-        # Apply gravity
+        # Appliquer la gravité
         self.velocity += self.gravity
         self.rect.y += self.velocity
-        # Check for collision with the ground
+
+        # Collisions avec les limites
         if self.rect.y > 500:
             self.rect.y = 500
             self.velocity = 0
-        # Check for collision with the ceiling
         if self.rect.y < 0:
             self.rect.y = 0
             self.velocity = 0
-        # Check for collision with the left wall
+        if self.rect.x < 0:
+            self.rect.x = 0
+        if self.rect.x > env.width - self.width:
+            self.rect.x = env.width - self.width
 
-        if tempX < env.invisibleWidth:
-            if(env.moveLeft()):
-                tempX = self.rect.x
-        if tempX< 0:
-            tempX = 0
-        if tempX + self.width > env.screenWidth-env.invisibleWidth:
-            if(env.moveRight()):
-                tempX = self.rect.x
-        if tempX + self.width > camera.width:
-            tempX = camera.width - self.width
-        self.rect.x = tempX
+        # Mise à jour de la caméra
+        camera.update(self)
 
     def jump(self):
         if self.rect.y == 500:
             self.velocity = -self.jump_height
 
-    def draw(self, surface):
-        surface.blit(self.image, self.rect)
+    def draw(self, surface, camera):
+        # Dessin de l'entité avec le décalage de la caméra
+        rect_camera = camera.apply(self)
+        surface.blit(self.image, rect_camera)
