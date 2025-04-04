@@ -2,19 +2,20 @@ import pygame
 import random
 
 # Définition des dimensions de l'écran
-screen_width = 1280
+screen_width = 1500
 screen_height = 700
 screen = pygame.display.set_mode((screen_width, screen_height))
 
-# Coordonnées fixes des plateformes (X fixe, Y fixe)
+# Coordonnées fixes des plateformes
 plateformes_fixes = [
-    (90, 535, 150, 20),
-    (300, 500, 150, 20),
-    (750, 250, 150, 20),
-    (1000, 250, 150, 20),
-    (1500, 400, 150, 20),
-    (2500, 250, 150, 20),
-    (3000, 535, 150, 20),
+    (100, 500, 150, 20 ),
+    (250, 500, 150, 20 ),
+    (400, 450, 150, 20),
+    (590, 400, 150, 20),
+    (1000, 450, 150, 20),
+    (1250, 500, 150, 20),
+    (1400, 500, 150, 20),
+    (1590, 500, 150, 20),
     (3500, 500, 150, 20),
     (4000, 250, 150, 20),
     (4500, 250, 150, 20),
@@ -23,15 +24,17 @@ plateformes_fixes = [
     (6000, 450, 150, 20),
 
 ]
-
 # Coordonnées fixes des éléments au sol
 elements_sol_fixes = [
-    (1000, 535, "escalier"),
-    (500, 535, "escalier"),
-    (40, 535, "porte"),
-    (2000, 535, "escalier"),
+    (30, 535, "escalier"),
+    (500, 535, "porte"),
     (700, 535, "trou"),
-    (600, 535, "crayon")
+    (1000, 535, "escalier"),
+    (2000, 535, "trou"),
+    (3000, 535, "trou"),
+    (4500, 535, "porte "),
+    (2000, 535, "escalier"),
+    (10000, 535, "crayon"),
 
 ]
 
@@ -47,11 +50,11 @@ class Plateforme(pygame.sprite.Sprite):
 
 class Trottoir(Plateforme):
     def __init__(self, x, y, width, height):
-        super().__init__(x, y, width, height, "C:/Users/audem/Downloads/TROTTOIR.jpg")
+        super().__init__(x, y, width, height, "C:/Users/audem/Downloads/GROUND.jpg")
 
 class Voiture(Plateforme):
     def __init__(self, x, y, width, height):
-        super().__init__(x, y, width, height, "C:/Users/audem/Downloads/VOITURE.jpg")
+        super().__init__(x, y, width, height, "C:/Users/audem/Downloads/VOITURE2.png")
 
 
 class ElementAuSol(pygame.sprite.Sprite):
@@ -64,19 +67,19 @@ class ElementAuSol(pygame.sprite.Sprite):
 
 class Porte(ElementAuSol):
     def __init__(self, x, y):
-        super().__init__(x, y, 50, 50, "C:/Users/audem/Downloads/PORTE.jpg")
+        super().__init__(x, y, 100, 100, "C:/Users/audem/Downloads/PORTE1.png")
 
 class Escalier(ElementAuSol):
     def __init__(self, x, y):
-        ElementAuSol.__init__(self, x, y, 50, 50, "C:/Users/audem/Downloads/ESCALIER.jpg")
+        ElementAuSol.__init__(self, x, y, 50, 50, "C:/Users/audem/Downloads/ESCALIER1.png")
 
 class Trou(ElementAuSol):  # Nouveau type d'élément : Trou
     def __init__(self, x, y):
-        ElementAuSol.__init__(self, x, y, 50, 50, "C:/Users/audem/Downloads/TROU.jpg")
+        ElementAuSol.__init__(self, x, y, 50, 50, "C:/Users/audem/Downloads/TROU1.png")
 
 class Crayon(ElementAuSol):
     def __init__(self, x, y):
-        ElementAuSol.__init__(self, x, y, 50, 50, "C:/Users/audem/Downloads/CRAYON.jpg")
+        ElementAuSol.__init__(self, x, y, 50, 50, "C:/Users/audem/Downloads/crayon_JW.png")
 
 
 class PU(pygame.sprite.Sprite):
@@ -94,17 +97,17 @@ class PU(pygame.sprite.Sprite):
 
 class Pistolet(PU):
     def __init__(self, x, y_platform):
-        super().__init__(x, y_platform, "C:/Users/audem/Downloads/PISTOLET.jpg")
+        super().__init__(x, y_platform, "C:/Users/audem/Downloads/PISTOLET_PA.png")
         self.damage = 1  # Enlève 1 vie
         self.munitions = 6
 
 class Kit_Med(PU):
     def __init__(self, x, y_platform):
-        super().__init__(x, y_platform, "C:/Users/audem/Downloads/MK.jpg")
+        super().__init__(x, y_platform, "C:/Users/audem/Downloads/KM_PA.png")
 
 class Piece(PU):
     def __init__(self, x, y_platform):
-        super().__init__(x, y_platform, "C:/Users/audem/Downloads/PIECE.jpg")
+        super().__init__(x, y_platform, "C:/Users/audem/Downloads/PIECE_PA.png")
 
 
 class BarreDeVie:
@@ -113,7 +116,7 @@ class BarreDeVie:
         self.max_vies = max_vies
         self.x = 20
         self.y = 20
-        self.coeur_image = pygame.image.load("C:/Users/audem/Downloads/COEUR.jpg").convert_alpha()
+        self.coeur_image = pygame.image.load("C:/Users/audem/Downloads/COEUR_PA.png").convert_alpha()
         self.coeur_image = pygame.transform.scale(self.coeur_image, (40, 40))
 
     def perdre_vie(self, damage):
@@ -188,22 +191,11 @@ class Game:
 
     def apparitions_PUs(self):
         self.pu_group.empty()
-        for x, y in [(1550, 250), (700, 250), (2000, 400), (1050, 250), (800, 250)]:  # X fixe, Y de la plateforme
+        for x, y in [(300, 500),  (1000, 250), (2500, 250), (3000, 535),
+                     (3500, 535), (5500, 450), (6050, 450), (9050, 400), (10050, 250), (12050, 400), (13050, 250), (15500, 400),
+                     (35000, 535)]:  # X fixe, Y de la plateforme
             pu = random.choice([Pistolet(x, y), Kit_Med(x, y), Piece(x,y)])
             self.pu_group.add(pu)
-
-    #fait avec GPT
-    def draw_elements(self):
-        # Dessiner tous les éléments en fonction du décalage de la caméra
-        for plateforme in self.plateformes:
-            self.screen.blit(plateforme.image, (plateforme.rect.x - self.camera_offset, plateforme.rect.y))
-
-        for pu in self.pu_group:
-            self.screen.blit(pu.image, (pu.rect.x - self.camera_offset, pu.rect.y))
-
-        for element in self.element_group:
-            self.screen.blit(element.image, (element.rect.x - self.camera_offset, element.rect.y))
-
 
     def run(self):
         background = pygame.image.load("C:/Users/audem/Downloads/fond.png").convert_alpha()
@@ -227,9 +219,7 @@ class Game:
             self.element_group.draw(self.screen)
             self.barre_de_vie.draw(self.screen)
 
-            self.draw_elements()
 
-          
             pygame.display.flip()
             self.clock.tick(60)
             compteur += 1
