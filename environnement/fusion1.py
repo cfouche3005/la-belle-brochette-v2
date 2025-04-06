@@ -7,13 +7,13 @@ from menu.menu import Menu
 from entities.staticblock import StaticBlock
 
 # Paramètres de l'écran
-screen_width = 1450
-screen_height = 700
+screen_width = 1280
+screen_height = 720
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 # Coordonnées fixes des plateformes
 plateformes_fixes = [
-    (100, 500, 150, 20),
+    (100, 300, 10, 20),
     (250, 500, 150, 20),
     (400, 450, 150, 20),
     (590, 400, 150, 20),
@@ -31,17 +31,17 @@ plateformes_fixes = [
 
 # Coordonnées fixes des éléments au sol
 elements_sol_fixes = [
-    (30, 535, "escalier"),
-    (500, 535, "porte"),
-    (700, 535, "trou"),
-    (1000, 535, "escalier"),
-    (2000, 535, "trou"),
-    (3000, 535, "trou"),
-    (4500, 535, "porte"),
-    (2000, 535, "escalier"),
-    (10000, 535, "crayon"),
+    (100, 475, "escalier"),
+    (500, 475, "porte"),
+    (700, 475, "trou"),
+    (1000, 475, "escalier"),
+    (2000, 475, "trou"),
+    (3000, 475, "trou"),
+    (4500, 475, "porte"),
+    (2000, 475, "escalier"),
+    (10000, 475, "crayon"),
 ]
-sol_y = 535
+sol_y = 475
 
 
 # Classe des plateformes
@@ -49,7 +49,7 @@ class Plateforme(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, image_path):
         super().__init__()
         self.image = pygame.image.load(image_path).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (width, height))
+        self.image = pygame.transform.scale(self.image, (100, 100))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
 
@@ -66,33 +66,32 @@ class ElementAuSol(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, image_path):
         super().__init__()
         self.image = pygame.image.load(image_path).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (width, height))
+        self.image = pygame.transform.scale(self.image, (75, 75))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
 
 class Porte(ElementAuSol):
     def __init__(self, x, y):
-        super().__init__(x, y, 100, 100, "C:/Users/audem/Downloads/PORTE1.png")
+        super().__init__(x, y, "C:/Users/audem/Downloads/PORTE1.png")
 
 class Escalier(ElementAuSol):
     def __init__(self, x, y):
-        super().__init__(x, y, 50, 50, "C:/Users/audem/Downloads/ESCALIER1.png")
+        super().__init__(x, y, "C:/Users/audem/Downloads/ESCALIER1.png")
 
 class Trou(ElementAuSol):
     def __init__(self, x, y):
-        super().__init__(x, y, 50, 50, "C:/Users/audem/Downloads/TROU1.png")
+        super().__init__(x, y,"C:/Users/audem/Downloads/TROU1.png")
 
 class Crayon(ElementAuSol):
     def __init__(self, x, y):
-        super().__init__(x, y, 50, 50, "C:/Users/audem/Downloads/crayon_JW.png")
+        super().__init__(x, y,"C:/Users/audem/Downloads/crayon_JW.png")
 
 
-# Classe des Power-Ups
 class PU(pygame.sprite.Sprite):
     def __init__(self, x, y_platform, image_path):
         super().__init__()
         self.image = pygame.image.load(image_path).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.image = pygame.transform.scale(self.image, (75, 75))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = random.choice([y_platform - self.rect.height, sol_y])
@@ -102,7 +101,7 @@ class Pistolet(PU):
     def __init__(self, x, y_platform):
         super().__init__(x, y_platform, "C:/Users/audem/Downloads/PISTOLET_PA.png")
         self.damage = 1
-        self.munitions = 6
+
 
 class Kit_Med(PU):
     def __init__(self, x, y_platform):
@@ -121,7 +120,7 @@ class BarreDeVie:
         self.x = 20
         self.y = 20
         self.coeur_image = pygame.image.load("C:/Users/audem/Downloads/COEUR_PA.png").convert_alpha()
-        self.coeur_image = pygame.transform.scale(self.coeur_image, (40, 40))
+        self.coeur_image = pygame.transform.scale(self.coeur_image, (75, 75))
 
     def perdre_vie(self, damage):
         self.vies -= damage
@@ -133,13 +132,10 @@ class BarreDeVie:
             screen.blit(self.coeur_image, (self.x + i * 45, self.y))
 
 
-import pygame
-
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         super().__init__()
 
-        # Initialisation de l'image et du rectangle
         self.image = pygame.Surface((width, height))
         self.rect = pygame.Rect(x, y, width, height)
         self.width = width
@@ -148,77 +144,33 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)  # Positionner le joueur à (x, y)
 
-        # Attributs pour la physique du joueur
         self.velocity_x = 0
         self.velocity_y = 0
         self.on_ground = False
 
-        # Attributs supplémentaires pour l'inventaire du joueur
         self.has_pistolet = False
         self.has_crayon = False
         self.has_KM = False
 
-    def update(self, platforms, keys, env):
-        # Vérifier la largeur de l'environnement pour ne pas sortir de l'écran
-        if self.rect.x > env.width - self.width:
-            self.rect.x = env.width - self.width
-        elif self.rect.x < 0:
-            self.rect.x = 0
 
-        # Détecter les collisions avec les plateformes
         self.on_ground = False
-        for plateforme in platforms:
-            if self.rect.colliderect(plateforme.rect):
-                # Si on touche une plateforme, on se place juste au-dessus
-                if self.velocity_y > 0 and self.rect.bottom <= plateforme.rect.top:
-                    self.rect.bottom = plateforme.rect.top
-                    self.on_ground = True
-                    # Si on est au sol, on avance selon les touches directionnelles
-                    self.velocity_x = 5 if keys[pygame.K_RIGHT] else -5 if keys[pygame.K_LEFT] else self.velocity_x
 
-        # Déplacer le joueur horizontalement en fonction des touches pressées
-        if keys[pygame.K_RIGHT]:
-            self.velocity_x = 5
-        elif keys[pygame.K_LEFT]:
-            self.velocity_x = -5
-        else:
-            self.velocity_x = 0
-
-        # Appliquer la vitesse horizontale
-        self.rect.x += self.velocity_x
-
-        # Appliquer la vitesse verticale (gravité)
-        self.rect.y += self.velocity_y
-
-    def jump(self):
-        # Ne peut sauter que si le joueur est sur le sol
-        if self.on_ground:
-            self.velocity_y = -15  # La vitesse du saut
-            self.on_ground = False
-
-    def ramasser_pu(self, pu):
-        if isinstance(pu, Pistolet) and not self.has_pistolet:
-            self.has_pistolet = True
-            return True
-        elif isinstance(pu, Crayon) and not self.has_crayon:
-            self.has_crayon = True
-            return True
-        elif isinstance(pu, Kit_Med) and not self.has_KM:
-            self.has_KM = True
-            return True
+    def ramasser_pu(self, power_ups):
+        """
+        Permet au joueur de ramasser un PU s'il est proche.
+        """
+        for pu in power_ups[:]:  # On copie la liste pour éviter les erreurs pendant l'itération
+            # Vérifier si le joueur est à proximité (zone de 50 pixels autour du PU)
+            if self.rect.colliderect(pu.rect.inflate(50, 50)):  # 50px de détection
+                print("Ramassé un PU !")
+                power_ups.remove(pu)  # Retirer le PU de la liste
+                return True
         return False
 
-    def tirer(self, arme):
-        if arme and arme.munitions > 0:
-            arme.munitions -= 1
-            print(f"Tir effectué ! Balles restantes: {arme.munitions}")
-        else:
-            print("Plus de munitions !")
 
 class Runtime:
     def __init__(self, window_size):
-        # Pygame initialization
-        # Initialisation de Pygame et autres attributs
+
         pygame.init()
         pygame.font.init()
         self.screen = pygame.display.set_mode(window_size)
@@ -254,8 +206,10 @@ class Runtime:
             self.gameState = "pause"
         else:
             raise ValueError("Invalid game state")
+
     def init_game_elements(self):
         self.platforms = pygame.sprite.Group()
+        self.power_ups = pygame.sprite.Group()  # Correctement initialisé comme groupe de sprites
 
         for x, y, width, height in plateformes_fixes:
             texture = random.choice(["C:/Users/audem/Downloads/VOITURE2.png", "C:/Users/audem/Downloads/TROTTOIR.jpg"])
@@ -282,17 +236,7 @@ class Runtime:
 
         for x, y in positions_powerups:
             pu = PU(x, y, random.choice(powerup_textures))
-            self.power_ups.add(pu)
-
-    def run(self):
-        while self.running:
-            self.handle_events()
-            self.update()
-            self.draw()
-
-            pygame.display.flip()
-            self.clock.tick(60)
-
+            self.power_ups.add(pu)  # Ajouter à self.power_ups qui est un groupe de sprites
 
     def loadMenu(self):
         menu = Menu(self.screen)
@@ -356,13 +300,18 @@ class Runtime:
         self.static_blocks = []
         blue_block = StaticBlock(2000, 200, 100, 100)  # Exemple de bloc statique
         self.static_blocks.append(blue_block)
+        self.env.background = pygame.image.load("C:/Users/audem/Downloads/fond.png").convert_alpha()
 
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.isRunning = False
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                self.gameState = "pause" if self.gameState == "game" else "game"
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.gameState = "pause" if self.gameState == "game" else "game"
+                elif event.key == pygame.K_z:  # Touche Z pour ramasser un PU
+                    print("Touche Z pressée")
+                    self.player.ramasser_pu(self.power_ups)
 
     def update(self):
         if self.gameState == "game":
@@ -372,20 +321,8 @@ class Runtime:
             self.player.update(self.env, self.camera)
 
     def run(self):
-        self.env.background = pygame.image.load("C:/Users/audem/Downloads/fond.png").convert_alpha()
-
         while self.isRunning:
             events = pygame.event.get()
-            for event in events:
-                if event.type == pygame.QUIT:
-                    self.isRunning = False
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        if self.gameState == "game":
-                            self.changeGameState("pause")
-                        elif self.gameState == "pause":
-                            self.changeGameState("game")
-
             self.handle_events()
             self.update()
             self.screen.fill("black")
@@ -399,20 +336,26 @@ class Runtime:
                 bg_rect = pygame.Rect(self.env.x + self.camera.offset_x, self.env.y, self.env.width, self.env.height)
                 self.screen.blit(self.env.background, bg_rect)
 
+                # Affichage du joueur
                 self.player.draw(self.screen, self.camera)
 
+                # Affichage des plateformes
                 for plateforme in self.platforms:
                     self.screen.blit(plateforme.image, self.camera.apply(plateforme))
 
+                # Affichage des Power-Ups
                 for pu in self.power_ups:
                     self.screen.blit(pu.image, self.camera.apply(pu))
 
+                # Affichage des éléments au sol
                 for element in self.element_group:
                     self.screen.blit(element.image, self.camera.apply(element))
 
+                # Affichage des blocs statiques
                 for block in self.static_blocks:
                     block.draw(self.screen, self.camera)
 
+                # Affichage de la barre de vie
                 self.barre_de_vie.draw(self.screen)
 
             elif self.gameState == "pause":
@@ -421,5 +364,3 @@ class Runtime:
 
             pygame.display.flip()
             self.dt = self.clock.tick(60) / 1000
-
-        pygame.quit()
