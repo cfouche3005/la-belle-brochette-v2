@@ -1,5 +1,4 @@
 import pygame
-import pygame_widgets
 
 from entities.player.player import Player
 from game.env import Env
@@ -21,6 +20,7 @@ class Runtime():
 
         self.player = None    # Joueur
         self.platforms = None # Liste des plateformes
+        self.element_group = None
         self.enemies = None   # Liste des ennemis
         self.power_ups = None # Liste des power-ups
         self.env = None       # Environ
@@ -97,9 +97,19 @@ class Runtime():
         :return:
         """
         self.player = player
-        self.platforms = ...
+        self.platforms = []
+        self.element_group = {
+            "porte": [],
+            "escalier": [],
+            "crayon": []
+        }
+        self.power_ups = {
+            "kit": [],
+            "pistolet": [],
+            "piece": []
+        }
         self.enemies = ...
-        self.power_ups = ...
+        self.power_ups = []
         self.env = env
         self.camera = camera
         self.static_blocks = []

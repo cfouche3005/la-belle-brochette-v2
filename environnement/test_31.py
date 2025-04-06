@@ -1,6 +1,6 @@
 import pygame
 import random
-
+from game.camera import Camera
 # Définition des dimensions de l'écran
 screen_width = 1450
 screen_height = 700
@@ -155,18 +155,21 @@ class Player:
         else:
             print("Plus de munitions !")
 
-
 class Game:
     def __init__(self):
         self.screen = screen
         self.clock = pygame.time.Clock()
         self.isRunning = True
-        self.plateformes = pygame.sprite.Group()
-        self.pu_group = pygame.sprite.Group()
-        self.element_group = pygame.sprite.Group()
-        self.init_plateformes()
-        self.init_elements_sol()
+        self.plateformes = pygame.sprite.Group()  # Groupes de plateformes
+        self.pu_group = pygame.sprite.Group()  # Groupes de power-ups
+        self.element_group = pygame.sprite.Group()  # Groupes des éléments au sol
+        self.init_plateformes()  # Appel pour initialiser les plateformes
+        self.init_elements_sol()  # Appel pour initialiser les éléments au sol
         self.barre_de_vie = BarreDeVie()
+
+        # Initialisation de la caméra
+        self.camera = Camera(screen_width, screen_height, 20000)  # Exemple, largeur du monde 20000 px
+        self.player = Player()  # Créer un joueur (ajoute le joueur dans le jeu)
 
     def init_plateformes(self):
         for x, y, width, height in plateformes_fixes:
@@ -197,34 +200,38 @@ class Game:
             pu = random.choice([Pistolet(x, y), Kit_Med(x, y), Piece(x,y)])
             self.pu_group.add(pu)
 
+    def draw_elements(self):
+        # Dessiner tous les éléments en fonction du décalage de la caméra
+        for plateforme in self.plateformes:
+            self.screen.blit(plateforme.image, self.camera.apply(plateforme))
+
+        for pu in self.pu_group:
+            self.screen.blit(pu.image, self.camera.apply(pu))
+
+        for element in self.element_group:
+            self.screen.blit(element.image, self.camera.apply(element))
+
     def run(self):
         background = pygame.image.load("C:/Users/audem/Downloads/fond.png").convert_alpha()
         background = pygame.transform.scale(background, (screen_width, screen_height))
-        self.screen.blit(background, (0, 0))
 
         compteur = 0
         while self.isRunning:
+            self.screen.blit(background, (0, 0))
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.isRunning = False
 
-
             if compteur % 120 == 0:
                 self.apparitions_PUs()
 
-            self.screen.blit(background, (0, 0))
+            # Dessiner les éléments sans la caméra pour tester
+            self.draw_elements()
 
-            self.plateformes.draw(self.screen)
-            self.pu_group.draw(self.screen)
-            self.element_group.draw(self.screen)
             self.barre_de_vie.draw(self.screen)
 
-
             pygame.display.flip()
-            self.clock.tick(60)
+            self.clock.tick(30)
             compteur += 1
-
-pygame.init()
-game = Game()
-game.run()
-pygame.quit()
+            self.platforms.add(Plateforme(600, 400, 150, 20, "C:/Users/audem/Downloads/TROTTOIR.jpg"))

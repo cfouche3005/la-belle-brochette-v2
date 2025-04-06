@@ -10,7 +10,7 @@ class Env:
         self.x = 0
         self.y = 0
         self.background_path = background
-        self.background = None
+        self.background =  ("assets/bg.png")
         self.loadbackground()
 
     def loadbackground(self):
