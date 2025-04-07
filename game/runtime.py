@@ -1,10 +1,11 @@
-import pygame
-
+import pygame, random
+from environnement.environnement_jeu import ElementAuSol, Plateforme, PU
 from entities.player.player import Player
 from game.env import Env
 from game.camera import Camera
 from menu.menu import Menu
 from entities.staticblock import StaticBlock
+from environnement.vie import BarreDeVie
 
 
 class Runtime():
@@ -17,19 +18,18 @@ class Runtime():
         self.dt = 0
         self.isRunning = True
         self.gameState = "menu" # menu, game, pause
-
-        self.player = None    # Joueur
-        self.platforms = None # Liste des plateformes
-        self.element_group = None
+        self.platforms = pygame.sprite.Group()
+        self.element_group = pygame.sprite.Group()
+        self.power_ups = pygame.sprite.Group()
+        self.barre_de_vie = BarreDeVie(max_vies=5)
         self.enemies = None   # Liste des ennemis
-        self.power_ups = None # Liste des power-ups
         self.env = None       # Environ
         self.camera = None    # Camera
         self.menu = None      # Menu
         self.pauseMenu = None # Menu de pause
         self.loadMenu()
         self.loadPauseMenu()
-
+        self.elements_sol = pygame.sprite.Group()
     def changeGameState(self, state: str):
         """
         Change l'état du jeu
@@ -89,7 +89,7 @@ class Runtime():
         )
         self.pauseMenu = menu
 
-    def setup(self, player: Player, env: Env, camera: Camera):
+    def setup(self, player: Player, env: Env, camera: Camera, power_ups : PU, platforms : Plateforme, elt_group : ElementAuSol):
         """
         :param player: The player object
         :param env: The environment object
@@ -98,24 +98,36 @@ class Runtime():
         """
         self.player = player
         self.platforms = []
-        self.element_group = {
-            "porte": [],
-            "escalier": [],
-            "crayon": []
-        }
-        self.power_ups = {
-            "kit": [],
-            "pistolet": [],
-            "piece": []
-        }
+        self.power_ups = power_ups
+        self.platforms = platforms
+        self.element_group = elt_group
         self.enemies = ...
-        self.power_ups = []
         self.env = env
         self.camera = camera
         self.static_blocks = []
         blue_block = StaticBlock(2000, 200, 100, 100)
         self.static_blocks.append(blue_block)
-
+        positions_powerups = [(100, 150), (200, 250), (300, 350)]  # Exemple de positions
+        powerup_textures = [
+            "C:/Users/audem/Downloads/PIECE.jpg",
+            "C:/Users/audem/Downloads/PISTOLET.jpg",
+            "C:/Users/audem/Downloads/MK.jpg"
+        ]
+        for pu in positions_powerups:
+            x, y = pu
+            random_texture_pu = random.choice(powerup_textures)
+            power_up = PU(x, y, random_texture_pu)
+            self.power_ups.add(power_up)
+    def handle_events(self, events):
+        for event in events:
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                self.isRunning = False
+            elif event.type == pygame.KEYDOWN:
+                print(f"Touche pressée : {pygame.key.name(event.key)}")
+                if pygame.key.name(event.key).lower() == "w":  # Touche w pour ramasser un PU
+                    print("Touche w pressée")
+                    self.player.ramasser_pu(self.power_ups)
     def run(self):
         while self.isRunning:
             events = pygame.event.get()

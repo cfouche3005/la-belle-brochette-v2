@@ -1,8 +1,7 @@
-import pygame
-
+import pygame, math
 from game.camera import Camera
 from game.env import Env
-
+from environnement.vie import BarreDeVie
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
@@ -18,6 +17,21 @@ class Player(pygame.sprite.Sprite):
         self.jump_height = 10
         self.gravity = 0.5
         self.velocity = 0
+        self.vie = BarreDeVie(5)
+
+    def ramasser_pu(self, power_ups, distance_threshold=50):
+        for power_up in list(power_ups):
+            distance_x = self.rect.centerx - power_up.rect.centerx
+            distance_y = self.rect.centery - power_up.rect.centery
+            distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
+
+            print(f"Distance entre le joueur et le PU: {distance}")
+
+            if distance <= distance_threshold:
+                print(f"PU ramassé ! Distance: {distance}")
+                power_ups.remove(power_up)  # Retirer le power-up du groupe
+                return  # Sortir après avoir ramassé le power-up
+        print("Aucun PU ramassé")  # Si aucun power-up n'est à proximité
 
     def update(self, env: Env, camera: Camera):
         keys = pygame.key.get_pressed()
