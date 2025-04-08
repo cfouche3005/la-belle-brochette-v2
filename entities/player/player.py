@@ -1,4 +1,5 @@
 import pygame, math
+
 from game.camera import Camera
 from game.env import Env
 from environnement.vie import BarreDeVie
@@ -19,19 +20,67 @@ class Player(pygame.sprite.Sprite):
         self.velocity = 0
         self.vie = BarreDeVie(5)
 
-    def ramasser_pu(self, power_ups, distance_threshold=50):
-        for power_up in list(power_ups):
-            distance_x = self.rect.centerx - power_up.rect.centerx
-            distance_y = self.rect.centery - power_up.rect.centery
-            distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
+    def ramasser_pistolet(self, power_ups, distance_threshold=50):
+        """
+        Fonction pour ramasser le power-up pistolet si le joueur est à une certaine distance.
+        Si un PU est ramassé, il est supprimé de la liste des power-ups.
+        """
+        for pu in power_ups:
+            if pu.type == "pistolet":  # Vérifier si le power-up est un pistolet
+                distance_x = self.rect.centerx - pu.rect.centerx  # Distance en x
+                distance_y = self.rect.centery - pu.rect.centery  # Distance en y
+                distance = math.sqrt(distance_x ** 2 + distance_y ** 2)  # Calcul de la distance
 
-            print(f"Distance entre le joueur et le PU: {distance}")
+                if distance <= distance_threshold:  # Si le joueur est proche du PU
+                    print(f"Pistolet ramassé à une distance de {distance}.")
+                    power_ups.remove(pu)  # Retirer le pistolet de la liste
+                    return  # Sortir après avoir ramassé le PU
+        print("Aucun pistolet ramassé : trop loin.")  # Si aucun PU n'est ramassé
 
-            if distance <= distance_threshold:
-                print(f"PU ramassé ! Distance: {distance}")
-                power_ups.remove(power_up)  # Retirer le power-up du groupe
-                return  # Sortir après avoir ramassé le power-up
-        print("Aucun PU ramassé")  # Si aucun power-up n'est à proximité
+    def ramasser_km(self, power_ups, distance_threshold=50):
+        """
+        Fonction pour ramasser le power-up KM si le joueur est à une certaine distance.
+        Si un PU est ramassé, il est supprimé de la liste des power-ups.
+        """
+        for pu in power_ups:
+            if pu.type == "km":  # Vérifier si le power-up est un "KM"
+                distance_x = self.rect.centerx - pu.rect.centerx  # Distance en x
+                distance_y = self.rect.centery - pu.rect.centery  # Distance en y
+                distance = math.sqrt(distance_x ** 2 + distance_y ** 2)  # Calcul de la distance
+
+                if distance <= distance_threshold:  # Si le joueur est proche du PU
+                    print(f"KM ramassé à une distance de {distance}.")
+                    power_ups.remove(pu)  # Retirer le "KM" de la liste
+                    return  # Sortir après avoir ramassé le PU
+        print("Aucun KM ramassé : trop loin.")  # Si aucun PU n'est ramassé
+
+    def check_trou_collision(self, elements_sol, runtime):
+        # Parcours des éléments au sol pour vérifier les collisions
+        for x, y, type_element in elements_sol:
+            # On ne vérifie que les "trous"
+            if type_element == "trou":
+                rect_trou = pygame.Rect(x, y, 50, 50)  # Crée un rectangle pour le trou (si taille = 50x50)
+                if self.rect.colliderect(rect_trou):  # Si le joueur entre en collision avec le trou
+                    self.mourir(runtime)
+
+    def set_game_over_image(self, image):
+        self.game_over_image = image  # On assigne l'image Game Over à l'instance du joueur
+
+    def afficher_game_over(self, surface):
+        if self.game_over_image:
+            screen = pygame.display.get_surface()
+            screen.blit(self.game_over_image, (250, 150))  # Afficher l'image Game Over au centre
+
+    def mourir(self, runtime):
+        """
+        Fait mourir le joueur, réinitialise sa barre de vie à 0 et affiche un message.
+        """
+        print("Le joueur est tombé dans un trou !")
+        self.vie.vies = 0  # Réinitialise la barre de vie du joueur à 0
+        print(f"Le joueur a perdu toute sa vie. Vies restantes : {self.vie.vies}")
+        # Ajoute ici la logique pour la fin du jeu ou pour redémarrer
+        runtime.changeGameState("gameover")
+
 
     def update(self, env: Env, camera: Camera):
         keys = pygame.key.get_pressed()

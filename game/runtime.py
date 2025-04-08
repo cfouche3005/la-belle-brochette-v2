@@ -23,6 +23,10 @@ class Runtime():
         self.element_group = pygame.sprite.Group()
         self.power_ups = pygame.sprite.Group()
         self.barre_de_vie = BarreDeVie(max_vies=5)
+
+        self.game_over_image = pygame.image.load("C:/Users/audem/Downloads/fond.png")  # Charger l'image Game Over ici
+        self.game_over_image = pygame.transform.scale(self.game_over_image, window_size)
+
         self.enemies = None   # Liste des ennemis
         self.env = None  # Environ
         self.camera = None    # Camera
@@ -42,6 +46,8 @@ class Runtime():
             self.gameState = "game"
         elif state == "pause":
             self.gameState = "pause"
+        elif state == "gameover":  # Ajouter "gameover" comme état valide
+            self.gameState = "gameover"
         else:
             raise ValueError("Invalid game state")
 
@@ -108,18 +114,20 @@ class Runtime():
         self.static_blocks = []
         blue_block = StaticBlock(2000, 200, 100, 100)
         self.static_blocks.append(blue_block)
+        self.trous = pygame.sprite.Group()
+        self.player.set_game_over_image(self.game_over_image)
 
-        positions_powerups = [(100, 150), (200, 250), (300, 350)]  # Exemple de positions
-        powerup_textures = [
-            "C:/Users/audem/Downloads/PIECE.jpg",
-            "C:/Users/audem/Downloads/PISTOLET.jpg",
-            "C:/Users/audem/Downloads/MK.jpg"
-        ]
-        for pu in positions_powerups:
-            x, y = pu
-            random_texture_pu = random.choice(powerup_textures)
-            power_up = PU(x, y, random_texture_pu)
-            power_ups.add(power_up)
+        powerup_textures = {
+            "pistolet": "C:/Users/audem/Downloads/PISTOLET.jpg",
+            "km":"C:/Users/audem/Downloads/MK.jpg"
+        }
+        for x, y, type_powerup in positions_powerups:
+            if type_powerup in powerup_textures:
+                # Crée un power-up en fonction de son type et de la position
+                texture = powerup_textures[type_powerup]
+                power_up = PU(x, y, texture, type_powerup)  # Crée le PU avec la bonne texture
+                self.power_ups.add(power_up)
+                print(f"Power-up {type_powerup} créé à la position ({x}, {y})")
 
         for x, y, width, height in plateformes_fixes:
             texture = random.choice(["C:/Users/audem/Downloads/VOITURE2.png", "C:/Users/audem/Downloads/TROTTOIR.jpg"])
@@ -137,17 +145,6 @@ class Runtime():
                 element = ElementAuSol(x, y, 50, 50, textures[type_element])
                 self.element_group.add(element)
 
-    def handle_events(self, events):
-        for event in events:
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                self.isRunning = False
-            elif event.type == pygame.KEYDOWN:
-                print(f"Touche pressée : {pygame.key.name(event.key)}")
-                if pygame.key.name(event.key).lower() == "w":  # Touche w pour ramasser un PU
-                    print("Touche w pressée")
-                    self.player.ramasser_pu(self.power_ups)
-
     def run(self):
         while self.isRunning:
             events = pygame.event.get()
@@ -160,6 +157,10 @@ class Runtime():
                             self.changeGameState("pause")
                         elif self.gameState == "pause":
                             self.changeGameState("game")
+                    elif event.key == pygame.K_w:  # Exemple avec la touche 'w' pour ramasser un power-up
+                        print("Touche 'w' pressée")
+                        self.player.ramasser_pistolet(self.power_ups)  # Ramasser un pistolet
+                        self.player.ramasser_km(self.power_ups)
 
             self.screen.fill("black")
 
@@ -171,6 +172,7 @@ class Runtime():
                 self.screen.blit(self.env.background, bg_rect)
                 self.player.draw(self.screen, self.camera)
                 self.player.update(self.env, self.camera)
+                self.player.check_trou_collision(elements_sol_fixes, self)
                 for plateforme in self.platforms:
                     self.screen.blit(plateforme.image, self.camera.apply(plateforme))
 
@@ -183,7 +185,12 @@ class Runtime():
                     self.screen.blit(power_up.image, self.camera.apply(power_up))
                 for block in self.static_blocks:
                     block.draw(self.screen, self.camera)
-
+                    # Si la vie est à 0, afficher l'image de Game Over
+                    if self.player.vie.vies <= 0 and self.gameState == "gameover":
+                        self.player.afficher_game_over(self.screen)
+                        pygame.display.update()
+                        pygame.time.delay(2000)  # Attendre 2 secondes avant de revenir au menu
+                        self.changeGameState("menu")  # Retourner au menu
             elif self.gameState == "pause":
                 self.pauseMenu.draw()
                 self.pauseMenu.detect_click(events)

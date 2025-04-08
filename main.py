@@ -1,8 +1,5 @@
 from game.runtime import Runtime
 from entities.player.player import Player
-
-from environnement.environnement_jeu import Plateforme, ElementAuSol, PU
-
 from game.camera import Camera
 from game.env import Env
 import pygame, random

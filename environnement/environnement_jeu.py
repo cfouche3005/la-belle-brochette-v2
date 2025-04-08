@@ -26,11 +26,14 @@ plateformes_fixes = [
 elements_sol_fixes = [
     (100, 500, "porte"),
     (500, 500, "escalier"),
+    (700, 500, "trou"),
+    (1000, 500, "escalier"),
+    (1200, 500, "crayon"),
 ]
-sol_y = 475
+sol_y = 500
 
-positions_powerups = [(300, 600), (1050, 550), (1640, 475), (3550, 400)]
-# Classe des plateformes
+positions_powerups = [(100, 500, "pistolet"), (400, 500, "pistolet")]
+
 class Plateforme(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, image_path):
         super().__init__()
@@ -38,7 +41,6 @@ class Plateforme(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
-
 
 class Trottoir(Plateforme):
     def __init__(self, x, y, width, height):
@@ -65,11 +67,9 @@ class Escalier(ElementAuSol):
     def __init__(self, x, y):
         super().__init__(x, y, "C:/Users/audem/Downloads/ESCALIER1.png")
 
-
 class Trou(ElementAuSol):
     def __init__(self, x, y):
         super().__init__(x, y, "C:/Users/audem/Downloads/TROU1.png")
-
 
 class Crayon(ElementAuSol):
     def __init__(self, x, y):
@@ -77,35 +77,21 @@ class Crayon(ElementAuSol):
 
 
 class PU(pygame.sprite.Sprite):
-    def __init__(self, x, y_platform, image_path):
+    def __init__(self, x, y_platform, image_path, type_powerup):
         super().__init__()
         self.image = pygame.image.load(image_path).convert_alpha()
         self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect()
         self.rect.x = x
-        self.rect.y = random.choice([y_platform - self.rect.height, 475])
-        print(f"PU créé à : {self.rect}")
-
-
+        self.rect.y = random.choice([y_platform - self.rect.height, 500])
+        self.type = type_powerup
 class Pistolet(PU):
-    def __init__(self, x, y_platform):
+    def __init__(self, x, y_platform, degats = 2):
         super().__init__(x, y_platform, "C:/Users/audem/Downloads/PISTOLET.jpg")
-        self.damage = 1
-
-
+        self.degats = degats
 class Kit_Med(PU):
     def __init__(self, x, y_platform):
         super().__init__(x, y_platform, "C:/Users/audem/Downloads/MK.jpg")
-
-
-class Piece(PU):
-    def __init__(self, x, y_platform):
-        super().__init__(x, y_platform, "C:/Users/audem/Downloads/PIECE.jpg")
-
-    def init_game_elements(self):
-        self.platforms = pygame.sprite.Group()
-        self.power_ups = pygame.sprite.Group()
-        self.element_group = pygame.sprite.Group()
 
 
 
