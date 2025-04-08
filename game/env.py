@@ -10,7 +10,8 @@ class Env:
         self.x = 0
         self.y = 0
         self.background_path = background
-        self.background =  ("assets/bg.png")
+        self.background = pygame.image.load("assets/bg.jpeg").convert()
+
         self.loadbackground()
 
     def loadbackground(self):
