@@ -137,7 +137,7 @@ class Runtime():
 
         for x, y, type_element in elements_sol_fixes:
             textures = {
-                "porte": "assets/PORTE1.png",
+                "porte": "assets/PORTE.png",
                 "escalier": "assets/ESCALIER1.png",
                 "trou": "assets/TROU1.png",
                 "crayon": "assets/CRAYON_JW.png"
@@ -176,7 +176,7 @@ class Runtime():
                 bg_rect = pygame.Rect(self.env.x + self.camera.offset_x, self.env.y, self.env.width, self.env.height)
                 self.screen.blit(self.env.background, bg_rect)
                 self.player.draw(self.screen, self.camera)
-                self.player.update(self.env, self.camera, elements_sol_fixes)
+                self.player.update(self.env, self.camera)
                 self.player.check_trou_collision(elements_sol_fixes, self)
                 self.barre_de_vie.draw(self.screen)
                 self.player.inventaire.draw(self.screen)
@@ -194,7 +194,7 @@ class Runtime():
 
                     # Si la vie est à 0, afficher l'image de Game Over
                     if self.player.vie.vies <= 0 and self.gameState == "gameover":
-                        self.player.afficher_game_over(self.screen)
+                        self.player.afficher_game_over(self)
                         pygame.display.update()
                         pygame.time.delay(2000)
                         self.changeGameState("menu")

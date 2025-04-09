@@ -131,7 +131,7 @@ class Player(pygame.sprite.Sprite):
         self.vie.vies = 0
         runtime.changeGameState("gameover")
 
-    def update(self, env: Env, camera: Camera, elements_sol_fixes):
+    def update(self, env: Env, camera: Camera):
         keys = pygame.key.get_pressed()
 
         # Déplacement du joueur dans le monde

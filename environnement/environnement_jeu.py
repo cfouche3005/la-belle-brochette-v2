@@ -66,13 +66,13 @@ class ElementAuSol(pygame.sprite.Sprite):
 
     def ouvrir(self):
         self.etat = "ouverte"
-        self.image_ouverte = "assets/porte_ouverte.jpg"
+        self.image_ouverte = "assets/PORTE_OUVERTE.png"
         self.image = pygame.image.load(self.image_ouverte).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.image = pygame.transform.scale(self.image, (60, 50))
 
 class Porte(ElementAuSol):
     def __init__(self, x, y,  type_element):
-        super().__init__(x, y, type_element, "assets/PORTE1.png" )
+        super().__init__(x, y, type_element, "assets/PORTE.png" )
 
 class Escalier(ElementAuSol):
     def __init__(self, x, y):
