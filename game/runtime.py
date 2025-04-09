@@ -1,5 +1,5 @@
 import pygame, random
-from environnement.environnement_jeu import ElementAuSol, Plateforme, PU
+from environnement.environnement_jeu import ElementAuSol, Plateforme, PU, Crayon
 from entities.player.player import Player
 from game.env import Env
 from game.camera import Camera
@@ -7,6 +7,7 @@ from menu.menu import Menu
 from entities.staticblock import StaticBlock
 from environnement.vie import BarreDeVie
 from environnement.environnement_jeu import plateformes_fixes, positions_powerups, elements_sol_fixes
+
 
 
 class Runtime():
@@ -119,7 +120,7 @@ class Runtime():
         self.barre_de_vie = BarreDeVie(5)
 
         powerup_textures = {
-            "pistolet": "assets/PISTOLET_PA.jpg",
+            "chargeur": "assets/balles.png",
             "km":"assets/KM_PA.jpg"
         }
         for x, y, type_powerup in positions_powerups:
@@ -158,12 +159,13 @@ class Runtime():
                         elif self.gameState == "pause":
                             self.changeGameState("game")
                     elif event.key == pygame.K_w:
-                        self.player.ramasser_pistolet(self.power_ups)
+                        self.player.ramasser_chargeur(self.power_ups)
                         self.player.ramasser_km(self.power_ups)
+                        self.player.ramasser_crayon(self.element_group)
                     elif event.key == pygame.K_q:
-                        if self.player.monter_escaliers(self.element_group):
-                            # Si le joueur est proche d'un escalier, on le fait monter
-                            self.player.rect.y -= 10 # Déplacer le joueur pour simuler la montée de l'escalier
+                        self.player.monter_escaliers(self.element_group)
+                    elif event.key == pygame.K_e:
+                        self.player.ouvrir_portes(self.element_group)
 
             self.screen.fill("black")
 
@@ -174,10 +176,10 @@ class Runtime():
                 bg_rect = pygame.Rect(self.env.x + self.camera.offset_x, self.env.y, self.env.width, self.env.height)
                 self.screen.blit(self.env.background, bg_rect)
                 self.player.draw(self.screen, self.camera)
-                self.player.update(self.env, self.camera)
+                self.player.update(self.env, self.camera, elements_sol_fixes)
                 self.player.check_trou_collision(elements_sol_fixes, self)
                 self.barre_de_vie.draw(self.screen)
-
+                self.player.inventaire.draw(self.screen)
                 for plateforme in self.platforms:
                     self.screen.blit(plateforme.image, self.camera.apply(plateforme))
 
