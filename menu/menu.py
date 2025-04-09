@@ -45,10 +45,12 @@ class Menu:
         :param fontsize: The font size of the text
         :param color: The color of the text
         """
+        new_posx = x - self.font.size(txt)[0] // 2
+        new_posy = y - self.font.size(txt)[1] // 2
         tempText = text(
             screen=self.screen,
             text=txt,
-            position=(x, y),
+            position=(new_posx, new_posy),
             clr=color,
             font_size=fontsize,
             mid=True
@@ -62,7 +64,17 @@ class Menu:
                     for button in self.buttons:
                         if button.rect.collidepoint(event.pos):
                             button.call_back()
+
+    def loadBackground(self, image_path: str):
+        """
+        Load a background image for the menu
+        :param image_path: The path to the image file
+        """
+        self.background = pygame.image.load(image_path)
+        self.background = pygame.transform.scale(self.background, (self.screen.get_width(), self.screen.get_height()))
     def draw(self):
+        if hasattr(self, 'background'):
+            self.screen.blit(self.background, (0, 0))
         for button in self.buttons:
             button.draw()
         for text in self.texts:
