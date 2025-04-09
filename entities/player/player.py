@@ -64,12 +64,12 @@ class Player(pygame.sprite.Sprite):
 
 
     def check_trou_collision(self, elements_sol, runtime):
-        for x, y, type_element in elements_sol:
-            # On ne vérifie que les "trous"
-            if type_element == "trou":
-                rect_trou = pygame.Rect(x, y, 50, 50)
+        for element in elements_sol:
+            if element.type == "trou":
+                rect_trou = pygame.Rect(element.rect.x, element.rect.y, 50, 50)
                 if self.rect.colliderect(rect_trou):
                     self.mourir(runtime)
+                    return
 
     def set_game_over_image(self, image):
         self.game_over_image = image
