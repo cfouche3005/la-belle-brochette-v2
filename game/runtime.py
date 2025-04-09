@@ -29,7 +29,7 @@ class Runtime():
                 if event.type == pygame.QUIT:
                     self.isRunning = False
 
-            self.screen.fill("black")
+            self.screen.fill("white")
 
             # Mise à jour et rendu des entités
 
