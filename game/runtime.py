@@ -196,7 +196,7 @@ class Runtime:
         # Mise à jour et dessin du joueur
         self.player.update(self.env, self.camera)
         self.player.draw(self.screen, self.camera)
-        self.player.check_trou_collision(elements_sol_fixes, self)
+        self.player.check_trou_collision(self.env.element_group, self)
 
         # Dessin des power-ups
         for power_up in self.power_ups:
