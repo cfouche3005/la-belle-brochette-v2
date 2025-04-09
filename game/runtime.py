@@ -24,7 +24,7 @@ class Runtime():
         self.power_ups = pygame.sprite.Group()
         self.barre_de_vie = BarreDeVie(max_vies=5)
 
-        self.game_over_image = pygame.image.load("C:/Users/audem/Downloads/fond.png")  # Charger l'image Game Over ici
+        self.game_over_image = pygame.image.load("assets/fond.png")  # Charger l'image Game Over ici
         self.game_over_image = pygame.transform.scale(self.game_over_image, window_size)
 
         self.enemies = None   # Liste des ennemis
@@ -116,6 +116,7 @@ class Runtime():
         self.static_blocks.append(blue_block)
         self.trous = pygame.sprite.Group()
         self.player.set_game_over_image(self.game_over_image)
+        self.barre_de_vie = BarreDeVie(5)
 
         powerup_textures = {
             "pistolet": "assets/PISTOLET_PA.jpg",
@@ -171,6 +172,7 @@ class Runtime():
                 self.player.draw(self.screen, self.camera)
                 self.player.update(self.env, self.camera)
                 self.player.check_trou_collision(elements_sol_fixes, self)
+
                 for plateforme in self.platforms:
                     self.screen.blit(plateforme.image, self.camera.apply(plateforme))
 
