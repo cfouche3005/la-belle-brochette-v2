@@ -23,6 +23,7 @@ class Player(pygame.sprite.Sprite):
         self.gravity = 0.5
         self.velocity = 0
         self.vie = BarreDeVie(5)
+        self.on_ground = True
 
     def shoot(self, angle):
         print("shoot")
@@ -78,6 +79,32 @@ class Player(pygame.sprite.Sprite):
             screen = pygame.display.get_surface()
             screen.blit(self.game_over_image, (150, 150))
 
+    def check_platform_collisions_horizontal(self, env):
+        """Vérifie et gère les collisions horizontales avec les plateformes"""
+        for platform in env.platforms:  # On suppose que les plateformes sont accessibles via env.game.platforms
+            if self.rect.colliderect(platform.rect):
+                # Si collision, annuler le mouvement horizontal
+                if self.rect.right > platform.rect.left and self.rect.left < platform.rect.left:
+                    self.rect.right = platform.rect.left
+                elif self.rect.left < platform.rect.right and self.rect.right > platform.rect.right:
+                    self.rect.left = platform.rect.right
+
+    def check_platform_collisions_vertical(self, env):
+        """Vérifie et gère les collisions verticales avec les plateformes"""
+        self.on_ground = False  # Pour savoir si le joueur est sur le sol ou une plateforme
+
+        for platform in env.platforms:  # On suppose que les plateformes sont accessibles via env.game.platforms
+            if self.rect.colliderect(platform.rect):
+                # Collision par le haut (le joueur est sur la plateforme)
+                if self.velocity > 0 and self.rect.bottom > platform.rect.top and self.rect.top < platform.rect.top:
+                    self.rect.bottom = platform.rect.top
+                    self.velocity = 0
+                    self.on_ground = True
+                # Collision par le bas (le joueur heurte une plateforme en sautant)
+                elif self.velocity < 0 and self.rect.top < platform.rect.bottom and self.rect.bottom > platform.rect.bottom:
+                    self.rect.top = platform.rect.bottom
+                    self.velocity = 0
+
     def mourir(self, runtime):
         """
         Fait mourir le joueur, réinitialise sa barre de vie à 0 et affiche un message.
@@ -101,9 +128,13 @@ class Player(pygame.sprite.Sprite):
                 self.shoot(45)
                 self.cooldown = 5
 
+        self.check_platform_collisions_horizontal(env)
+
         # Appliquer la gravité
         self.velocity += self.gravity
         self.rect.y += self.velocity
+
+        self.check_platform_collisions_vertical(env)
 
         # Collisions avec les limites
         if self.rect.y > 500:
@@ -123,7 +154,7 @@ class Player(pygame.sprite.Sprite):
             self.cooldown -= 1
 
     def jump(self):
-        if self.rect.y == 500:
+        if self.rect.y == 500 or self.on_ground:
             self.velocity = -self.jump_height
 
     def draw(self, surface, camera):
