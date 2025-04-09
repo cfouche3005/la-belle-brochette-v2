@@ -6,7 +6,7 @@ class BarreDeVie:
         self.max_vies = max_vies
         self.x = 20
         self.y = 20
-        self.coeur_image = pygame.image.load("C:/Users/audem/Downloads/COEUR_PA.png").convert_alpha()
+        self.coeur_image = pygame.image.load("assets/COEUR_PA.png").convert_alpha()
         self.coeur_image = pygame.transform.scale(self.coeur_image, (50, 50))
 
     def perdre_vie(self, damage):

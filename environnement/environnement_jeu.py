@@ -44,11 +44,11 @@ class Plateforme(pygame.sprite.Sprite):
 
 class Trottoir(Plateforme):
     def __init__(self, x, y, width, height):
-        super().__init__(x, y, width, height, "C:/Users/audem/Downloads/GROUND.jpg")
+        super().__init__(x, y, width, height, "assets/GROUND.jpg")
 
 class Voiture(Plateforme):
     def __init__(self, x, y, width, height):
-        super().__init__(x, y, width, height, "C:/Users/audem/Downloads/VOITURE2.png")
+        super().__init__(x, y, width, height, "assets/VOITURE2.png")
 
 
 class ElementAuSol(pygame.sprite.Sprite):
@@ -61,19 +61,19 @@ class ElementAuSol(pygame.sprite.Sprite):
 
 class Porte(ElementAuSol):
     def __init__(self, x, y):
-        super().__init__(x, y, "C:/Users/audem/Downloads/PORTE1.png")
+        super().__init__(x, y, "assets/PORTE1.png")
 
 class Escalier(ElementAuSol):
     def __init__(self, x, y):
-        super().__init__(x, y, "C:/Users/audem/Downloads/ESCALIER1.png")
+        super().__init__(x, y, "assets/ESCALIER1.png")
 
 class Trou(ElementAuSol):
     def __init__(self, x, y):
-        super().__init__(x, y, "C:/Users/audem/Downloads/TROU1.png")
+        super().__init__(x, y, "assets/TROU1.png")
 
 class Crayon(ElementAuSol):
     def __init__(self, x, y):
-        super().__init__(x, y, "C:/Users/audem/Downloads/crayon_JW.png")
+        super().__init__(x, y, "assets/crayon_JW.png")
 
 
 class PU(pygame.sprite.Sprite):
@@ -87,11 +87,11 @@ class PU(pygame.sprite.Sprite):
         self.type = type_powerup
 class Pistolet(PU):
     def __init__(self, x, y_platform, degats = 2):
-        super().__init__(x, y_platform, "C:/Users/audem/Downloads/PISTOLET.jpg")
+        super().__init__(x, y_platform, "assets/PISTOLET_PA.jpg")
         self.degats = degats
 class Kit_Med(PU):
     def __init__(self, x, y_platform):
-        super().__init__(x, y_platform, "C:/Users/audem/Downloads/MK.jpg")
+        super().__init__(x, y_platform, "assets/KM_PA.jpg")
 
 
 

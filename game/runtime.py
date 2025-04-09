@@ -118,8 +118,8 @@ class Runtime():
         self.player.set_game_over_image(self.game_over_image)
 
         powerup_textures = {
-            "pistolet": "C:/Users/audem/Downloads/PISTOLET.jpg",
-            "km":"C:/Users/audem/Downloads/MK.jpg"
+            "pistolet": "assets/PISTOLET_PA.jpg",
+            "km":"assets/KM_PA.jpg"
         }
         for x, y, type_powerup in positions_powerups:
             if type_powerup in powerup_textures:
@@ -127,19 +127,18 @@ class Runtime():
                 texture = powerup_textures[type_powerup]
                 power_up = PU(x, y, texture, type_powerup)  # Crée le PU avec la bonne texture
                 self.power_ups.add(power_up)
-                print(f"Power-up {type_powerup} créé à la position ({x}, {y})")
 
         for x, y, width, height in plateformes_fixes:
-            texture = random.choice(["C:/Users/audem/Downloads/VOITURE2.png", "C:/Users/audem/Downloads/TROTTOIR.jpg"])
+            texture = random.choice(["assets/VOITURE2.png", "assets/GROUND.jpg"])
             plateforme = Plateforme(x, y, width, height, texture)
             self.platforms.add(plateforme)
 
         for x, y, type_element in elements_sol_fixes:
             textures = {
-                "porte": "C:/Users/audem/Downloads/PORTE1.png",
-                "escalier": "C:/Users/audem/Downloads/ESCALIER1.png",
-                "trou": "C:/Users/audem/Downloads/TROU1.png",
-                "crayon": "C:/Users/audem/Downloads/CRAYON_JW.png"
+                "porte": "assets/PORTE1.png",
+                "escalier": "assets/ESCALIER1.png",
+                "trou": "assets/TROU1.png",
+                "crayon": "assets/CRAYON_JW.png"
             }
             if type_element in textures:
                 element = ElementAuSol(x, y, 50, 50, textures[type_element])
@@ -158,7 +157,6 @@ class Runtime():
                         elif self.gameState == "pause":
                             self.changeGameState("game")
                     elif event.key == pygame.K_w:
-                        print("Touche 'w' pressée")
                         self.player.ramasser_pistolet(self.power_ups)
                         self.player.ramasser_km(self.power_ups)
 
@@ -191,6 +189,7 @@ class Runtime():
                         pygame.display.update()
                         pygame.time.delay(2000)
                         self.changeGameState("menu")
+
             elif self.gameState == "pause":
                 self.pauseMenu.draw()
                 self.pauseMenu.detect_click(events)
