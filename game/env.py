@@ -10,13 +10,13 @@ class Env:
         self.x = 0
         self.y = 0
         self.background_path = background
-        self.background = pygame.image.load("assets/bg.jpeg").convert()
+        self.background = None
 
         self.loadbackground()
 
     def loadbackground(self):
         try:
-            self.background = pygame.image.load(self.background_path)
+            self.background = pygame.image.load(self.background_path).convert()
             self.background = pygame.transform.scale(self.background, (self.width, self.height))
             print(self.background.get_width(), "x", self.background.get_height())
             self.background.get_rect().move((self.x, self.y))
