@@ -1,5 +1,6 @@
 import pygame, math
 
+from entities.bullet import Bullet
 from game.camera import Camera
 from game.env import Env
 from environnement.vie import BarreDeVie
@@ -7,6 +8,9 @@ from environnement.vie import BarreDeVie
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         super().__init__()
+        self.projectile = []
+        self.cooldown = 0
+
         self.image = pygame.Surface((width, height))
         self.image.fill((255, 44, 102))
         self.rect = self.image.get_rect()
@@ -18,6 +22,14 @@ class Player(pygame.sprite.Sprite):
         self.jump_height = 10
         self.gravity = 0.5
         self.velocity = 0
+        self.vie = BarreDeVie(5)
+
+    def shoot(self, angle):
+        print("shoot")
+        print("angle", angle)
+        # Implémentation de la logique de tir
+        bullet = Bullet(self.rect.x, self.rect.y, 10, 10, (0,0,0) , angle)
+        self.projectile.append(bullet)
         self.vie = BarreDeVie(5)
 
     def ramasser_pistolet(self, power_ups, distance_threshold=50):
@@ -84,6 +96,10 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += self.speed
         if keys[pygame.K_UP]:
             self.jump()
+        if keys[pygame.K_f]:
+            if self.cooldown == 0:
+                self.shoot(45)
+                self.cooldown = 5
 
         # Appliquer la gravité
         self.velocity += self.gravity
@@ -103,6 +119,8 @@ class Player(pygame.sprite.Sprite):
 
         # Mise à jour de la caméra
         camera.update(self)
+        if self.cooldown > 0:
+            self.cooldown -= 1
 
     def jump(self):
         if self.rect.y == 500:
@@ -112,3 +130,5 @@ class Player(pygame.sprite.Sprite):
         # Dessin de l'entité avec le décalage de la caméra
         rect_camera = camera.apply(self)
         surface.blit(self.image, rect_camera)
+        for bullet in self.projectile:
+            bullet.draw(surface, camera)
