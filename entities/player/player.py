@@ -90,7 +90,7 @@ class Player(pygame.sprite.Sprite):
     def ouvrir_portes(self, elements_sol_fixes, distance_threshold=50):
         """
         Permet au joueur d'ouvrir une portee s'il est à une certaine distance de cette dernière
-        et pour l'ouvrir il appuie sur la touche E.
+        et pour l'ouvrir il appuie sur la touche E
         """
         for element in elements_sol_fixes:
             if isinstance(element, ElementAuSol):

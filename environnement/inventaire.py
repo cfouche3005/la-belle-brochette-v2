@@ -14,7 +14,7 @@ class Inventaire:
             "km": pygame.transform.scale(pygame.image.load("assets/KM_PA.jpg"), (30, 30)),
         }
 
-        self.font = pygame.font.SysFont("Arial", 20) #GPT
+        self.font = pygame.font.SysFont("Arial", 20) # Avec GPT
 
     def ajouter(self, type_objet):
         if type_objet in self.objets:

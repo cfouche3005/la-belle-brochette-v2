@@ -65,6 +65,11 @@ class ElementAuSol(pygame.sprite.Sprite):
         self.etat = "fermée"
 
     def ouvrir(self):
+        """
+        la fonction ouvrir a été placée dans la classe mère car le code renvoyait des erreurs si elle était placée dans la classe Porte.
+        J'ai fait des prints pour voir où étaient les erreurs et je me suis aperçue que le code rencontrait des pb à différencier "type_element" lorsque
+        la fonction ouvrir était placée dans la classe Porte. Ce problème s'est résolu quand j'ai mis la fonction ouvrir dans la classe mère "ElementAuSol"
+        """
         self.etat = "ouverte"
         self.image_ouverte = "assets/PORTE_OUVERTE.png"
         self.image = pygame.image.load(self.image_ouverte).convert_alpha()

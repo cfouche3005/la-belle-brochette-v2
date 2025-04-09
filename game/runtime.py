@@ -110,14 +110,15 @@ class Runtime():
         self.platforms = pygame.sprite.Group()
         self.element_group = pygame.sprite.Group()
         self.enemies = ...
+        self.trous = pygame.sprite.Group()
+        self.player.set_game_over_image(self.game_over_image)
+        self.barre_de_vie = BarreDeVie(5)
+
         self.env = env
         self.camera = camera
         self.static_blocks = []
         blue_block = StaticBlock(2000, 200, 100, 100)
         self.static_blocks.append(blue_block)
-        self.trous = pygame.sprite.Group()
-        self.player.set_game_over_image(self.game_over_image)
-        self.barre_de_vie = BarreDeVie(5)
 
         powerup_textures = {
             "chargeur": "assets/balles.png",
