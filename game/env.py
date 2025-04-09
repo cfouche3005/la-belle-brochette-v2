@@ -61,7 +61,7 @@ class Env:
     def loadElements(self):
         for x, y, type_element in elements_sol_fixes:
             if type_element in ELEMENT_TEXTUREPATH:
-                element = ElementAuSol(x, y, 50, 50, ELEMENT_TEXTUREPATH[type_element])
+                element = ElementAuSol(x, y, 50, 50, ELEMENT_TEXTUREPATH[type_element], type_element)
                 self.element_group.add(element)
     def draw(self):
         bg_rect = pygame.Rect(self.x + self.camera.offset_x, self.y, self.width, self.height)
