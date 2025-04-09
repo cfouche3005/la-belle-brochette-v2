@@ -5,9 +5,8 @@ from game.env import Env
 import pygame, random
 
 if __name__ == '__main__':
-    # Initialize the game
+
     game = Runtime((1280, 690))
-    # Create a player instance
 
     env = Env(1280, 720, "assets/bg.jpeg")
     camera = Camera(1280, 720, 1280*2)

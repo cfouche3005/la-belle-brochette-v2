@@ -32,7 +32,7 @@ elements_sol_fixes = [
 ]
 sol_y = 500
 
-positions_powerups = [(100, 500, "pistolet"), (400, 500, "pistolet")]
+positions_powerups = [(100, 500, "pistolet"), (400, 500, "pistolet"), (60, 500, "km")]
 
 class Plateforme(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, image_path):

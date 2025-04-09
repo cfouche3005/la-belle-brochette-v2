@@ -157,9 +157,9 @@ class Runtime():
                             self.changeGameState("pause")
                         elif self.gameState == "pause":
                             self.changeGameState("game")
-                    elif event.key == pygame.K_w:  # Exemple avec la touche 'w' pour ramasser un power-up
+                    elif event.key == pygame.K_w:
                         print("Touche 'w' pressée")
-                        self.player.ramasser_pistolet(self.power_ups)  # Ramasser un pistolet
+                        self.player.ramasser_pistolet(self.power_ups)
                         self.player.ramasser_km(self.power_ups)
 
             self.screen.fill("black")
@@ -179,18 +179,18 @@ class Runtime():
                     # Afficher les éléments au sol
                 for element in self.element_group:
                     self.screen.blit(element.image, self.camera.apply(element))
-
                     # Afficher les power-ups
                 for power_up in self.power_ups:
                     self.screen.blit(power_up.image, self.camera.apply(power_up))
                 for block in self.static_blocks:
                     block.draw(self.screen, self.camera)
+
                     # Si la vie est à 0, afficher l'image de Game Over
                     if self.player.vie.vies <= 0 and self.gameState == "gameover":
                         self.player.afficher_game_over(self.screen)
                         pygame.display.update()
-                        pygame.time.delay(2000)  # Attendre 2 secondes avant de revenir au menu
-                        self.changeGameState("menu")  # Retourner au menu
+                        pygame.time.delay(2000)
+                        self.changeGameState("menu")
             elif self.gameState == "pause":
                 self.pauseMenu.draw()
                 self.pauseMenu.detect_click(events)
@@ -198,7 +198,4 @@ class Runtime():
             pygame.display.flip()
             self.dt = self.clock.tick(60) / 1000
             pygame.display.update()
-
-
-
         pygame.quit()

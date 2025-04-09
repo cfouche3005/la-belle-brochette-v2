@@ -26,16 +26,16 @@ class Player(pygame.sprite.Sprite):
         Si un PU est ramassé, il est supprimé de la liste des power-ups.
         """
         for pu in power_ups:
-            if pu.type == "pistolet":  # Vérifier si le power-up est un pistolet
-                distance_x = self.rect.centerx - pu.rect.centerx  # Distance en x
-                distance_y = self.rect.centery - pu.rect.centery  # Distance en y
-                distance = math.sqrt(distance_x ** 2 + distance_y ** 2)  # Calcul de la distance
+            if pu.type == "pistolet":
+                distance_x = self.rect.centerx - pu.rect.centerx
+                distance_y = self.rect.centery - pu.rect.centery
+                distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
 
-                if distance <= distance_threshold:  # Si le joueur est proche du PU
+                if distance <= distance_threshold:
                     print(f"Pistolet ramassé à une distance de {distance}.")
-                    power_ups.remove(pu)  # Retirer le pistolet de la liste
-                    return  # Sortir après avoir ramassé le PU
-        print("Aucun pistolet ramassé : trop loin.")  # Si aucun PU n'est ramassé
+                    power_ups.remove(pu)
+                    return
+        print("Aucun pistolet ramassé : trop loin.")
 
     def ramasser_km(self, power_ups, distance_threshold=50):
         """
@@ -43,33 +43,37 @@ class Player(pygame.sprite.Sprite):
         Si un PU est ramassé, il est supprimé de la liste des power-ups.
         """
         for pu in power_ups:
-            if pu.type == "km":  # Vérifier si le power-up est un "KM"
-                distance_x = self.rect.centerx - pu.rect.centerx  # Distance en x
-                distance_y = self.rect.centery - pu.rect.centery  # Distance en y
-                distance = math.sqrt(distance_x ** 2 + distance_y ** 2)  # Calcul de la distance
+            if pu.type == "km":
+                distance_x = self.rect.centerx - pu.rect.centerx
+                distance_y = self.rect.centery - pu.rect.centery
+                distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
 
                 if distance <= distance_threshold:  # Si le joueur est proche du PU
                     print(f"KM ramassé à une distance de {distance}.")
-                    power_ups.remove(pu)  # Retirer le "KM" de la liste
-                    return  # Sortir après avoir ramassé le PU
-        print("Aucun KM ramassé : trop loin.")  # Si aucun PU n'est ramassé
-
+                    power_ups.remove(pu)
+                    return
+        print("Aucun KM ramassé : trop loin.")
+    def monter_escalier(self, elements_sol):
+        for x, y, type_element in elements_sol:
+            if type_element == "escalier":
+                rect_trou = pygame.Rect(x, y, 50, 50)
+                if self.rect.colliderect(rect_trou):
+                    self.mourir(runtime)
     def check_trou_collision(self, elements_sol, runtime):
-        # Parcours des éléments au sol pour vérifier les collisions
         for x, y, type_element in elements_sol:
             # On ne vérifie que les "trous"
             if type_element == "trou":
-                rect_trou = pygame.Rect(x, y, 50, 50)  # Crée un rectangle pour le trou (si taille = 50x50)
-                if self.rect.colliderect(rect_trou):  # Si le joueur entre en collision avec le trou
+                rect_trou = pygame.Rect(x, y, 50, 50)
+                if self.rect.colliderect(rect_trou):
                     self.mourir(runtime)
 
     def set_game_over_image(self, image):
-        self.game_over_image = image  # On assigne l'image Game Over à l'instance du joueur
+        self.game_over_image = image
 
     def afficher_game_over(self, surface):
         if self.game_over_image:
             screen = pygame.display.get_surface()
-            screen.blit(self.game_over_image, (250, 150))  # Afficher l'image Game Over au centre
+            screen.blit(self.game_over_image, (150, 150))
 
     def mourir(self, runtime):
         """
@@ -78,7 +82,6 @@ class Player(pygame.sprite.Sprite):
         print("Le joueur est tombé dans un trou !")
         self.vie.vies = 0  # Réinitialise la barre de vie du joueur à 0
         print(f"Le joueur a perdu toute sa vie. Vies restantes : {self.vie.vies}")
-        # Ajoute ici la logique pour la fin du jeu ou pour redémarrer
         runtime.changeGameState("gameover")
 
 
