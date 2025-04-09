@@ -37,6 +37,8 @@ positions_powerups = [(100, 500, "pistolet"), (400, 500, "pistolet"), (60, 500, 
 class Plateforme(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, image_path):
         super().__init__()
+        self.width = width
+        self.height = height
         self.image = pygame.image.load(image_path).convert_alpha()
         self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect()
@@ -50,7 +52,6 @@ class Voiture(Plateforme):
     def __init__(self, x, y, width, height):
         super().__init__(x, y, width, height, "assets/VOITURE2.png")
 
-
 class ElementAuSol(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, image_path):
         super().__init__()
@@ -60,8 +61,16 @@ class ElementAuSol(pygame.sprite.Sprite):
         self.rect.topleft = (x, y)
 
 class Porte(ElementAuSol):
-    def __init__(self, x, y):
+    def __init__(self, x, y, etat = "fermée"):
         super().__init__(x, y, "assets/PORTE1.png")
+        self.etat= "fermée"
+
+    def ouvrir(self):
+        if self.etat == 'fermée':
+            self.etat = 'ouverte'
+            print("La porte est maintenant ouverte.")
+        else:
+            print("La porte est déjà ouverte.")
 
 class Escalier(ElementAuSol):
     def __init__(self, x, y):
@@ -85,13 +94,16 @@ class PU(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = random.choice([y_platform - self.rect.height, 500])
         self.type = type_powerup
+
 class Pistolet(PU):
-    def __init__(self, x, y_platform, degats = 2):
+    def __init__(self, x, y_platform ):
         super().__init__(x, y_platform, "assets/PISTOLET_PA.jpg")
-        self.degats = degats
+        self.degats -= 1
+
 class Kit_Med(PU):
     def __init__(self, x, y_platform):
         super().__init__(x, y_platform, "assets/KM_PA.jpg")
+        self.vie += 1
 
 
 

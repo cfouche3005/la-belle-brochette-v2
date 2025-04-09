@@ -161,6 +161,10 @@ class Runtime():
                         self.player.ramasser_pistolet(self.power_ups)
                         self.player.ramasser_km(self.power_ups)
 
+                    elif event.key == pygame.K_q:
+                        self.player.ouvrir_portes(self.portes)
+                        self.monter_escaliers(self.elements_sol)
+
             self.screen.fill("black")
 
             if self.gameState == "menu":
@@ -172,6 +176,10 @@ class Runtime():
                 self.player.draw(self.screen, self.camera)
                 self.player.update(self.env, self.camera)
                 self.player.check_trou_collision(elements_sol_fixes, self)
+
+                self.player.jump_plateformes(self.platforms)
+
+                self.barre_de_vie.draw(self.screen)
 
                 for plateforme in self.platforms:
                     self.screen.blit(plateforme.image, self.camera.apply(plateforme))

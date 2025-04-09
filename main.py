@@ -2,7 +2,7 @@ from game.runtime import Runtime
 from entities.player.player import Player
 from game.camera import Camera
 from game.env import Env
-import pygame, random
+import pygame
 
 if __name__ == '__main__':
 
