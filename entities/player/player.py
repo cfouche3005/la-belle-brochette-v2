@@ -3,6 +3,7 @@ import pygame, math
 from game.camera import Camera
 from game.env import Env
 from environnement.vie import BarreDeVie
+from environnement.environnement_jeu import ElementAuSol, Plateforme
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
@@ -19,6 +20,7 @@ class Player(pygame.sprite.Sprite):
         self.gravity = 0.5
         self.velocity = 0
         self.vie = BarreDeVie(5)
+        self.platform_invisible = None
 
     def ramasser_pistolet(self, power_ups, distance_threshold=50):
         """
@@ -48,16 +50,26 @@ class Player(pygame.sprite.Sprite):
                 if distance <= distance_threshold:
                     power_ups.remove(pu)
                     return
+    #Aide de GPT qui a indiqué qu'il fallait ajouter le .type dans la fonction
+    def monter_escaliers(self, elements_sol, distance_threshold=50):
+        """
+        Permet au joueur de monter les escaliers s'il est à une certaine distance d'un escalier
+        et appuie sur la touche Q.
+        """
+        for element in elements_sol:
+            if element.type == "escalier":
 
-    def monter_escaliers(self, elements_sol, runtime):
-        keys = pygame.key.get_pressed()
-        for x, y, type_element in elements_sol:
-            if type_element == "escalier":
-                rect_escalier = pygame.Rect(x, y, 50, 50)
-                if self.rect.colliderect(rect_escalier):
-                    # Et s'il appuie sur la touche Q, il monte
-                    if keys[pygame.K_q]:
-                        self.rect.y -= 5  # Monter de 5 pixels (ajuste si nécessaire)
+                distance_x = self.rect.centerx - element.rect.centerx
+                distance_y = self.rect.centery - element.rect.centery
+                distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
+
+                if distance <= distance_threshold:
+                    # Créer une plateforme invisible à la même coordonnée X que l'escalier
+                    self.platform_invisible = Plateforme(element.rect.x + 45, 450, element.rect.width, 10,
+                                                         "assets/GROUND.jpg")
+
+                    return
+        self.platform_invisible = None
 
     def ouvrir_portes(self, elements_sol):
         for x, y, type_element in elements_sol:
@@ -104,7 +116,9 @@ class Player(pygame.sprite.Sprite):
         # Appliquer la gravité
         self.velocity += self.gravity
         self.rect.y += self.velocity
-
+        if self.platform_invisible and self.rect.colliderect(self.platform_invisible.rect):
+            self.rect.y = self.platform_invisible.rect.top  # Positionner le joueur sur la plateforme invisible
+            self.velocity = 0
         # Collisions avec les limites
         if self.rect.y > 500:
             self.rect.y = 500
@@ -121,7 +135,7 @@ class Player(pygame.sprite.Sprite):
         camera.update(self)
 
     def jump(self):
-        if self.rect.y == 500:
+        if self.rect.y == 500 or self.rect.y == 450:
             self.velocity = -self.jump_height
 
     def draw(self, surface, camera):

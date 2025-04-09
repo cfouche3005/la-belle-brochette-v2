@@ -117,7 +117,6 @@ class Runtime():
         self.trous = pygame.sprite.Group()
         self.player.set_game_over_image(self.game_over_image)
         self.barre_de_vie = BarreDeVie(5)
-        self.player.monter_escaliers(self.barre_de_vie, self)
 
         powerup_textures = {
             "pistolet": "assets/PISTOLET_PA.jpg",
@@ -143,7 +142,7 @@ class Runtime():
                 "crayon": "assets/CRAYON_JW.png"
             }
             if type_element in textures:
-                element = ElementAuSol(x, y, 50, 50, textures[type_element])
+                element = ElementAuSol(x, y, 50, 50, textures[type_element], type_element)
                 self.element_group.add(element)
 
     def run(self):
@@ -161,9 +160,10 @@ class Runtime():
                     elif event.key == pygame.K_w:
                         self.player.ramasser_pistolet(self.power_ups)
                         self.player.ramasser_km(self.power_ups)
-
                     elif event.key == pygame.K_q:
-                        self.monter_escaliers(self.elements_sol, self)
+                        if self.player.monter_escaliers(self.element_group):
+                            # Si le joueur est proche d'un escalier, on le fait monter
+                            self.player.rect.y -= 10 # Déplacer le joueur pour simuler la montée de l'escalier
 
             self.screen.fill("black")
 
@@ -176,7 +176,6 @@ class Runtime():
                 self.player.draw(self.screen, self.camera)
                 self.player.update(self.env, self.camera)
                 self.player.check_trou_collision(elements_sol_fixes, self)
-                self.player.monter_escaliers(self.elements_sol, self)
                 self.barre_de_vie.draw(self.screen)
 
                 for plateforme in self.platforms:

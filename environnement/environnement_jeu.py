@@ -6,7 +6,7 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 
 # Coordonnées fixes des plateformes
 plateformes_fixes = [
-    (100, 200, 10, 20),
+    (100, 200, 150, 20),
     (250, 200, 150, 20),
     (400, 200, 150, 20),
     (590, 200, 150, 20),
@@ -40,7 +40,7 @@ class Plateforme(pygame.sprite.Sprite):
         self.width = width
         self.height = height
         self.image = pygame.image.load(image_path).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
 
@@ -53,12 +53,13 @@ class Voiture(Plateforme):
         super().__init__(x, y, width, height, "assets/VOITURE2.png")
 
 class ElementAuSol(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, image_path):
+    def __init__(self, x, y, width, height, image_path, type_element):
         super().__init__()
         self.image = pygame.image.load(image_path).convert_alpha()
         self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
+        self.type = type_element #Aide de GPT qui a indiqué qu'il fallait ajouter le .type dans la fonction
 
 class Porte(ElementAuSol):
     def __init__(self, x, y, etat = "fermée"):
