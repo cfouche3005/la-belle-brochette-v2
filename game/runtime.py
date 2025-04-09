@@ -15,18 +15,6 @@ POWERUP_TEXTUREPATH = {
     "km": "assets/KM_PA.jpg"
 }
 
-PLATFORME_TEXTUREPATH = {
-    "assets1": "assets/VOITURE2.png",
-    "assets2": "assets/GROUND.jpg",
-}
-
-ELEMENT_TEXTUREPATH = {
-    "porte": "assets/PORTE1.png",
-    "escalier": "assets/ESCALIER1.png",
-    "trou": "assets/TROU1.png",
-    "crayon": "assets/CRAYON_JW.png"
-
-}
 
 
 class Runtime:
@@ -43,8 +31,6 @@ class Runtime:
         self.gameState = "menu"  # États possibles : menu, game, pause, gameover
 
         # Groupes et entités
-        self.platforms = pygame.sprite.Group()
-        self.element_group = pygame.sprite.Group()
         self.power_ups = pygame.sprite.Group()
         self.static_blocks = []
         self.trous = pygame.sprite.Group()
@@ -74,6 +60,11 @@ class Runtime:
         """
         valid_states = ["menu", "game", "pause", "gameover"]
         if state in valid_states:
+            if state == "menu":
+                self.menu.launchMusic()
+            elif state == "game":
+                self.menu.stopMusic()
+
             self.gameState = state
         else:
             raise ValueError("Invalid game state")
@@ -104,11 +95,14 @@ class Runtime:
             (255, 255, 255)
         )
         menu.loadBackground("assets/menu.png")
+        menu.attatchMusic("assets/music/Assassins.mp3")
         self.menu = menu
 
     def loadPauseMenu(self):
         """Initialise le menu de pause."""
         menu = Menu(self.screen)
+        middle_x = self.screen.get_width() // 2
+        middle_y = self.screen.get_height() // 2
         menu.addButton(
             x=100,
             y=100,
@@ -122,9 +116,9 @@ class Runtime:
             onClick=lambda: self.changeGameState("game")
         )
         menu.addButton(
-            x=100,
-            y=200,
-            width=200,
+            x=middle_x,
+            y=middle_y,
+            width=300,
             height=50,
             text="Quit",
             radius=20,
@@ -135,30 +129,21 @@ class Runtime:
         )
         self.pauseMenu = menu
 
-    def setup(self, player: Player, env: Env, camera: Camera, power_ups: PU, platforms: Plateforme, elt_group: ElementAuSol):
+    def setup(self, player: Player, camera: Camera):
         """
         Configure les entités et l'environnement du jeu.
         """
         self.player = player
-        self.env = env
         self.camera = camera
+        self.env = Env(1280, 720, "assets/bg.jpeg", self.screen, camera)
 
-        # Initialisation des groupes
-        self.platforms = pygame.sprite.Group()
-        self.element_group = pygame.sprite.Group()
+
 
         # Ajout d'un bloc statique
         blue_block = StaticBlock(2000, 500, 100, 100)
-        self.static_blocks.append(blue_block)
 
         # Configuration des power-ups
         self.loadPowerUps()
-
-        # Configuration des plateformes fixes
-        self.loadPlatformes()
-
-        # Configuration des éléments au sol
-        self.loadElements()
 
         # Configuration du joueur
         self.player.set_game_over_image(self.game_over_image)
@@ -168,20 +153,10 @@ class Runtime:
                 texture = POWERUP_TEXTUREPATH[type_powerup]
                 power_up = PU(x, y, texture, type_powerup)
                 self.power_ups.add(power_up)
-    def loadPlatformes(self):
-        for x, y, width, height in plateformes_fixes:
-            # Choix aléatoire de la texture parmi les options disponibles
-            texture = random.choice(list(PLATFORME_TEXTUREPATH.values()))
-            plateforme = Plateforme(x, y, width, height, texture)
-            self.platforms.add(plateforme)
-    def loadElements(self):
-        for x, y, type_element in elements_sol_fixes:
-            if type_element in ELEMENT_TEXTUREPATH:
-                element = ElementAuSol(x, y, 50, 50, ELEMENT_TEXTUREPATH[type_element])
-                self.element_group.add(element)
 
     def run(self):
         """Boucle principale du jeu."""
+        self.changeGameState("menu")
         while self.isRunning:
             events = pygame.event.get()
             for event in events:
@@ -216,21 +191,12 @@ class Runtime:
     def updateGame(self):
         """Met à jour et dessine les éléments du jeu."""
         # Dessin de l'environnement
-        bg_rect = pygame.Rect(self.env.x + self.camera.offset_x, self.env.y, self.env.width, self.env.height)
-        self.screen.blit(self.env.background, bg_rect)
+        self.env.draw()
 
         # Mise à jour et dessin du joueur
         self.player.update(self.env, self.camera)
         self.player.draw(self.screen, self.camera)
         self.player.check_trou_collision(elements_sol_fixes, self)
-
-        # Dessin des plateformes
-        for plateforme in self.platforms:
-            self.screen.blit(plateforme.image, self.camera.apply(plateforme))
-
-        # Dessin des éléments au sol
-        for element in self.element_group:
-            self.screen.blit(element.image, self.camera.apply(element))
 
         # Dessin des power-ups
         for power_up in self.power_ups:
