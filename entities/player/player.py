@@ -32,10 +32,8 @@ class Player(pygame.sprite.Sprite):
                 distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
 
                 if distance <= distance_threshold:
-                    print(f"Pistolet ramassé à une distance de {distance}.")
                     power_ups.remove(pu)
                     return
-        print("Aucun pistolet ramassé : trop loin.")
 
     def ramasser_km(self, power_ups, distance_threshold=50):
         """
@@ -47,18 +45,11 @@ class Player(pygame.sprite.Sprite):
                 distance_x = self.rect.centerx - pu.rect.centerx
                 distance_y = self.rect.centery - pu.rect.centery
                 distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
-
-                if distance <= distance_threshold:  # Si le joueur est proche du PU
-                    print(f"KM ramassé à une distance de {distance}.")
+                if distance <= distance_threshold:
                     power_ups.remove(pu)
                     return
-        print("Aucun KM ramassé : trop loin.")
-    def monter_escalier(self, elements_sol):
-        for x, y, type_element in elements_sol:
-            if type_element == "escalier":
-                rect_trou = pygame.Rect(x, y, 50, 50)
-                if self.rect.colliderect(rect_trou):
-                    self.mourir(runtime)
+
+
     def check_trou_collision(self, elements_sol, runtime):
         for x, y, type_element in elements_sol:
             # On ne vérifie que les "trous"
@@ -79,9 +70,7 @@ class Player(pygame.sprite.Sprite):
         """
         Fait mourir le joueur, réinitialise sa barre de vie à 0 et affiche un message.
         """
-        print("Le joueur est tombé dans un trou !")
         self.vie.vies = 0  # Réinitialise la barre de vie du joueur à 0
-        print(f"Le joueur a perdu toute sa vie. Vies restantes : {self.vie.vies}")
         runtime.changeGameState("gameover")
 
 
