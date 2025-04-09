@@ -11,7 +11,7 @@ class text:
         """
         self.screen = screen
         self.position = position
-        self.font = pygame.font.SysFont("Arial", font_size)
+        self.font = pygame.font.SysFont("Bauhaus 93", font_size)
         self.txt_surf = self.font.render(text, True, clr)
 
         if len(clr) == 4:
