@@ -117,6 +117,7 @@ class Runtime():
         self.trous = pygame.sprite.Group()
         self.player.set_game_over_image(self.game_over_image)
         self.barre_de_vie = BarreDeVie(5)
+        self.player.monter_escaliers(self.barre_de_vie, self)
 
         powerup_textures = {
             "pistolet": "assets/PISTOLET_PA.jpg",
@@ -162,8 +163,7 @@ class Runtime():
                         self.player.ramasser_km(self.power_ups)
 
                     elif event.key == pygame.K_q:
-                        self.player.ouvrir_portes(self.portes)
-                        self.monter_escaliers(self.elements_sol)
+                        self.monter_escaliers(self.elements_sol, self)
 
             self.screen.fill("black")
 
@@ -176,9 +176,7 @@ class Runtime():
                 self.player.draw(self.screen, self.camera)
                 self.player.update(self.env, self.camera)
                 self.player.check_trou_collision(elements_sol_fixes, self)
-
-                self.player.jump_plateformes(self.platforms)
-
+                self.player.monter_escaliers(self.elements_sol, self)
                 self.barre_de_vie.draw(self.screen)
 
                 for plateforme in self.platforms:

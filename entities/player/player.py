@@ -50,12 +50,14 @@ class Player(pygame.sprite.Sprite):
                     return
 
     def monter_escaliers(self, elements_sol, runtime):
+        keys = pygame.key.get_pressed()
         for x, y, type_element in elements_sol:
-            # On ne vérifie que les "escaliers"
-                if type_element == "escalier":
-                    rect_escalier = pygame.Rect(x, y, 50, 50)
-                    if self.rect.colliderect(rect_escalier):
-                        self.rect.y += 10
+            if type_element == "escalier":
+                rect_escalier = pygame.Rect(x, y, 50, 50)
+                if self.rect.colliderect(rect_escalier):
+                    # Et s'il appuie sur la touche Q, il monte
+                    if keys[pygame.K_q]:
+                        self.rect.y -= 5  # Monter de 5 pixels (ajuste si nécessaire)
 
     def ouvrir_portes(self, elements_sol):
         for x, y, type_element in elements_sol:
@@ -64,26 +66,6 @@ class Player(pygame.sprite.Sprite):
                     print("porte fermée")
                     self.player.changer_etat_porte(elements_sol)
                     print("porte ouverte")
-
-    def jump_plateformes(self, plateformes_fixes, sol_y = 475):
-
-        plateformes_touchées = pygame.sprite.spritecollide(self, plateformes_fixes, False)
-
-        if plateformes_touchées:
-            plateforme = plateformes_touchées[0]
-            self.rect.bottom = plateforme.rect.top
-            self.rect.centerx = plateforme.rect.centerx
-        else:
-            # Pas de plateforme touchée, tomber sur le sol
-            self.rect.bottom = sol_y
-
-    def chute_plateformes (self):
-        if self.chute == 100:
-            self.vie.vies -= 1
-        elif self.chute == 200:
-            self.vie.vies -=2
-        elif self.chute == 300:
-            self.vie.vies -= 3
 
     def check_trou_collision(self, elements_sol, runtime):
         for x, y, type_element in elements_sol:
