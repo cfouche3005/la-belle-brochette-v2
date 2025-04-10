@@ -247,7 +247,7 @@ class Player(pygame.sprite.Sprite):
         mouse_buttons = pygame.mouse.get_pressed()
         if mouse_buttons[0]:  # Clic gauche
             if self.cooldown == 0:
-                self.shoot(self.arm_angle-90)
+                self.shoot(self.arm_angle-90, env)
 
         # Déplacement du joueur dans le monde
         if keys[pygame.K_LEFT]:
