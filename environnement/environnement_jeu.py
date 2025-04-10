@@ -13,12 +13,12 @@ def generate_platforms():
     plateformes_fixes = []
     for i in range(0, 1280, 50):
         if random.random() > 0.2:  # 80% de chance de créer une plateforme
-            plateformes_fixes.append((i, 500, 50, 50, "platform"))
+            plateformes_fixes.append((i, 500, 100, 50, "platform"))
     return plateformes_fixes
 
 
 plateformes_fixes = generate_platforms()
-plateformes_fixes.append((40, 400, 50, 50, "escalier"))
+plateformes_fixes.append((40, 400, 50, 50, "escalier") )
 
 # SAVE:
 # plateformes_fixes = [
@@ -43,16 +43,19 @@ plateformes_fixes.append((40, 400, 50, 50, "escalier"))
 # Coordonnées fixes des éléments au sol
 elements_sol_fixes = [
     #(40, 400, "escalier"),
-    (100, 500, "trou"),
-    (250, 500, "porte"),
-    (600, 500, "porte"),
-    (900, 500, "porte"),
-    (1200, 500, "escalier"),
-    (1500, 500, "porte"),
+    (100, 475, "trou"),
+    (250, 430, "porte"),
+    (600, 475, "trou"),
+    (900, 430, "porte"),
+    (1200, 430, "escalier"),
+    (1500, 430, "porte"),
+    (1700, 475, "trou"),
+    (1900, 430, "escalier"),
+    (1000, 430, "crayon"),
 ]
-sol_y = 500
+sol_y = 450
 
-positions_powerups = [(300, 500, "km"),(300, 440, "chargeur"), (4000, 410, "chargeur"), (1050, 480, "km"), (150, 500, "km")]
+positions_powerups = [(200, 450, "km"),(400, 440, "chargeur"), (550, 410, "chargeur"), (700, 480, "km"), (900, 450, "chargeur")]
 
 class Plateforme(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, image_path, type_platform: str):
@@ -60,7 +63,7 @@ class Plateforme(pygame.sprite.Sprite):
         self.width = width
         self.height = height
         self.image = pygame.image.load(image_path).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        self.image = pygame.transform.scale(self.image, (100, 40))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.type = type_platform
@@ -68,6 +71,7 @@ class Plateforme(pygame.sprite.Sprite):
 class Trottoir(Plateforme):
     def __init__(self, x, y, width, height):
         super().__init__(x, y, width, height, "assets/GROUND.jpg")
+
 
 class ElementAuSol(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, image_path, type_element: str):
@@ -117,7 +121,7 @@ class PU(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect()
         self.rect.x = x
-        self.rect.y = random.choice([y_platform - self.rect.height, 500])
+        self.rect.y = random.choice([y_platform - self.rect.height, 450])
         self.type = type_powerup
 
 class Chargeur(PU):
