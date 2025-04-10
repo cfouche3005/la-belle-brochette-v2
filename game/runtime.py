@@ -205,6 +205,8 @@ class Runtime():
         # Dessin de l'environnement
         self.env.draw()
 
+        self.env.update()
+
         # Mise à jour et dessin du joueur
         self.player.update(self.env, self.camera)
         self.player.draw(self.screen, self.camera)
