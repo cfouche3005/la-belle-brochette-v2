@@ -63,10 +63,12 @@ def generer_niveau_coherent(largeur_totale=3840):  # 1280 * 3 = largeur par déf
         else:
             x_courant += random.randint(2, 4) * largeur_plateforme  # Espacement plus court
 
-    # Ajouter quelques power-ups sur les plateformes (inchangé)
+    # Ajouter quelques power-ups sur les plateformes
     positions_powerups = []
     for plat in plateformes:
-        if random.random() < 0.15:
+        rand = random.random()
+        print(rand)
+        if rand < 1:
             power_up_type = random.choice(["chargeur", "km"])
             power_up_x = plat[0] + random.randint(10, 90)
             power_up_y = plat[1] - 30

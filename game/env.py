@@ -2,7 +2,8 @@ import random
 
 import pygame
 
-from environnement.environnement_jeu import plateformes_fixes, Plateforme, elements_sol_fixes, ElementAuSol
+from environnement.environnement_jeu import plateformes_fixes, Plateforme, elements_sol_fixes, ElementAuSol, Chargeur, \
+    Kit_Med, positions_powerups
 from game.camera import Camera
 from entities.enemy import Enemy
 
@@ -41,9 +42,12 @@ class Env:
 
         self.power_group = pygame.sprite.Group()
 
+        self.power_ups = pygame.sprite.Group()
+
         self.loadbackground()
         self.loadPlatforms()
         self.loadElements()
+        self.loadPowerUps()
         self.spawnEnemies(5)
 
     def spawnEnemies(self, count):
@@ -80,6 +84,14 @@ class Env:
                 texture = random.choice(list(PLATFORME_TEXTUREPATH.values()))
             platform = Plateforme(x, y, width, height, texture, platform_type)
             self.platforms.add(platform)
+    def loadPowerUps(self):
+        for pos in positions_powerups:
+            x, y, power_up_type = pos
+            print(pos)
+            if power_up_type == "chargeur":
+                self.power_ups.add(Chargeur(x, y))
+            elif power_up_type == "km":
+                self.power_ups.add(Kit_Med(x, y))
 
     def loadElements(self):
         for x, y, type_element in elements_sol_fixes:
@@ -94,6 +106,8 @@ class Env:
             self.screen.blit(platform.image, self.camera.apply(platform))
         for element in self.element_group:
             self.screen.blit(element.image, self.camera.apply(element))
+        for power_up in self.power_ups:
+            self.screen.blit(power_up.image, self.camera.apply(power_up))
         for enemy in self.enemies:
             self.screen.blit(enemy.image, self.camera.apply(enemy))
 

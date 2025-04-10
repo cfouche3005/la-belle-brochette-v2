@@ -263,6 +263,18 @@ class Player(pygame.sprite.Sprite):
                 self.update_player_image()
         if keys[pygame.K_UP]:
             self.jump()
+        if keys[pygame.K_w]:
+            self.ramasser_chargeur(env.power_ups)
+            self.ramasser_km(env.power_ups)
+            self.ramasser_crayon(env.element_group)
+        if keys[pygame.K_e]:
+            self.ouvrir_portes(env.element_group)
+        if keys[pygame.K_s]:
+            if self.vie.vies < 5 and self.inventaire.possede("km"):
+                self.vie.vies += 1
+                self.gagner_vie()
+                self.inventaire.retirer("km")
+
 
         # Gestion de l'animation de marche
         if self.is_walking:

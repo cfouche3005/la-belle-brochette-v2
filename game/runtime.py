@@ -22,7 +22,6 @@ class Runtime():
         self.gameState = "menu"  # États possibles : menu, game, pause, gameover
 
         # Groupes et entités
-        self.power_ups = pygame.sprite.Group()
         self.static_blocks = []
         self.trous = pygame.sprite.Group()
         self.barre_de_vie = BarreDeVie(max_vies=5)
@@ -138,19 +137,6 @@ class Runtime():
         # Configuration du joueur
         self.player.set_game_over_image(self.game_over_image)
 
-
-        self.generate_and_add_powerups()
-
-    def generate_and_add_powerups(self):
-        """ Génère des PUs (chargeur ou kit médical) et les placent sur certaines plateformes"""
-        positions_power_ups = positions_powerups
-        for pos in positions_power_ups:
-            x, y, power_up_type = pos
-            if power_up_type == "chargeur":
-                self.power_ups.add(Chargeur(x, y))
-            elif power_up_type == "km":
-                self.power_ups.add(Kit_Med(x, y))
-
     def run(self):
         """Boucle principale du jeu."""
         self.changeGameState("menu")
@@ -165,17 +151,6 @@ class Runtime():
                             self.changeGameState("pause")
                         elif self.gameState == "pause":
                             self.changeGameState("game")
-                    elif event.key == pygame.K_w:
-                        self.player.ramasser_chargeur(self.power_ups)
-                        self.player.ramasser_km(self.power_ups)
-                        self.player.ramasser_crayon(self.env.element_group)
-                    elif event.key == pygame.K_e:
-                        self.player.ouvrir_portes(self.env.element_group)
-                    elif event.key == pygame.K_s:
-                        if self.player.vie.vies < 5 and self.player.inventaire.possede("km"):
-                            self.player.vie.vies += 1
-                            self.player.gagner_vie()
-                            self.player.inventaire.retirer("km")
 
             self.screen.fill("white")
 
@@ -205,10 +180,6 @@ class Runtime():
         self.player.draw(self.screen, self.camera)
         self.player.check_trou_collision(self.env.element_group, self)
         self.player.inventaire.draw(self.screen)
-
-        # Dessin des power-ups
-        for power_up in self.power_ups:
-            self.screen.blit(power_up.image, self.camera.apply(power_up))
 
         # Dessin des blocs statiques
         for block in self.static_blocks:
