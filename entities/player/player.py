@@ -31,13 +31,24 @@ class Player(pygame.sprite.Sprite):
         self.hearts =[]
         self.on_ground = True
 
-    def shoot(self, angle):
+    def shoot(self, angle, env: Env):
         print("shoot")
         print("angle", angle)
         # Implémentation de la logique de tir
-        bullet = Bullet(self.rect.x, self.rect.y, 10, 10, (0,0,0) , angle)
+        bullet = Bullet(self.rect.x, self.rect.y, 10, 10, (0,0,0) , angle, env, lambda : self.deleteBullet(bullet))
         self.projectile.append(bullet)
         self.vie = BarreDeVie(5)
+
+    def deleteBullet(self, bullet):
+        """
+        Fonction pour supprimer une balle de la liste des projectiles
+        """
+        if bullet in self.projectile:
+            self.projectile.remove(bullet)
+            bullet.kill()
+            print("Balle supprimée")
+        else:
+            print("Balle non trouvée dans la liste des projectiles")
 
     #aide de GPT pour le l'utilisation de ".type", mais aussi pour les fonctions monter_escalier pour la plateforme invisible
     # et ouvrir_porte pour le "if isinstance(element, ElementAuSol):"
@@ -196,7 +207,7 @@ class Player(pygame.sprite.Sprite):
             self.jump()
         if keys[pygame.K_f]:
             if self.cooldown == 0:
-                self.shoot(45)
+                self.shoot(0, env)
                 self.cooldown = 5
 
         self.check_platform_collisions_horizontal(env)
