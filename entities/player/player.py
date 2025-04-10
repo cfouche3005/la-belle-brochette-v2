@@ -6,7 +6,7 @@ from entities.bullet import Bullet
 from game.camera import Camera
 from game.env import Env
 from environnement.vie import BarreDeVie
-from environnement.environnement_jeu import Plateforme,Porte, ElementAuSol
+from environnement.environnement_jeu import Plateforme, ElementAuSol
 from environnement.inventaire import Inventaire
 
 class Player(pygame.sprite.Sprite):
@@ -70,19 +70,18 @@ class Player(pygame.sprite.Sprite):
         self.projectile.append(bullet)
         self.vie = BarreDeVie(5)
 
-    #aide de GPT pour le l'utilisation de ".type", mais aussi pour les fonctions monter_escalier pour la plateforme invisible
-    # et ouvrir_porte pour le "if isinstance(element, ElementAuSol):"
-    def ramasser_chargeur(self, power_ups, distance_threshold=50):
+    def ramasser_chargeur(self, power_ups, distance_min=50):
         """
         Fonction pour ramasser le power-up chargeur si le joueur est à une certaine distance.
         Si un PU est ramassé, il est supprimé de la liste des power-ups.
+        Aide de GPT pour l'utilisation de ".type"
         """
         for pu in power_ups:
             if pu.type == "chargeur":
                 distance_x = self.rect.centerx - pu.rect.centerx
                 distance_y = self.rect.centery - pu.rect.centery
                 distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
-                if distance <= distance_threshold:
+                if distance <= distance_min:
                     power_ups.remove(pu)
                     self.inventaire.ajouter("chargeur")
                     return
@@ -102,7 +101,7 @@ class Player(pygame.sprite.Sprite):
                     self.inventaire.ajouter("km")
                     return
 
-    def ramasser_crayon(self, elements_sol, distance_threshold=50):
+    def ramasser_crayon(self, elements_sol, distance_min=50):
         """
         Fonction pour ramasser le crayon si le joueur est à une certaine distance.
         Si un crayon est ramassé, il est supprimé de la liste des éléments au sol.
@@ -112,8 +111,7 @@ class Player(pygame.sprite.Sprite):
                 distance_x = self.rect.centerx - element.rect.centerx
                 distance_y = self.rect.centery - element.rect.centery
                 distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
-                if distance <= distance_threshold:
-                    print("Crayon ramassé !")
+                if distance <= distance_min:
                     elements_sol.remove(element)
                     self.inventaire.ajouter("crayon")
                     return
@@ -134,10 +132,13 @@ class Player(pygame.sprite.Sprite):
                     return
         self.platform_invisible = None
 
-    def ouvrir_portes(self, elements_sol_fixes, distance_threshold=50):
+    def ouvrir_portes(self, elements_sol_fixes, distance_min=50):
         """
         Permet au joueur d'ouvrir une portee s'il est à une certaine distance de cette dernière
         et pour l'ouvrir il appuie sur la touche E
+        Aide de GPT pour "if isinstance(element, ElementAuSol):" car problème au niveau de l'état (fermé ou ouvert)
+        lorsqu'il était placé dans la classe Porte(ElementAuSol). Pour éviter les erreurs, l'état a été placé dans la classe
+        mère ElementAuSol
         """
         for element in elements_sol_fixes:
             if isinstance(element, ElementAuSol):
@@ -145,11 +146,14 @@ class Player(pygame.sprite.Sprite):
                     distance_x = self.rect.centerx - element.rect.centerx
                     distance_y = self.rect.centery - element.rect.centery
                     distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
-                    if distance <= distance_threshold:
+                    if distance <= distance_min:
                         element.ouvrir()
-                        break #utilisation de break pour sortir de la boucle
+                        break
 
     def check_trou_collision(self, elements_sol, runtime):
+        """
+        Vérifier si le joueur est tombé dans un trou, si c'est le cas il meurt directement
+        """
         for element in elements_sol:
             if element.type == "trou":
                 rect_trou = pygame.Rect(element.rect.x, element.rect.y, 50, 50)
@@ -162,7 +166,7 @@ class Player(pygame.sprite.Sprite):
 
     def afficher_game_over(self):
         """
-        Affiche à l'écran gameover si le joueur est tombé dans un trou
+        Affiche à l'écran gameover si le joueur est tombé dans un trou ou a été tué par les ennemis
                 """
         if self.game_over_image:
             screen = pygame.display.get_surface()
@@ -213,7 +217,6 @@ class Player(pygame.sprite.Sprite):
         """
         self.vie.vies = 0
         runtime.changeGameState("gameover")
-
 
     def update(self, env: Env, camera: Camera):
         # Réinitialisation de l'état de marche
