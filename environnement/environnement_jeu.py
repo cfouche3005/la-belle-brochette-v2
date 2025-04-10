@@ -49,10 +49,6 @@ class Trottoir(Plateforme):
     def __init__(self, x, y, width, height):
         super().__init__(x, y, width, height, "assets/GROUND.jpg")
 
-class Voiture(Plateforme):
-    def __init__(self, x, y, width, height):
-        super().__init__(x, y, width, height, "assets/VOITURE2.png")
-
 class ElementAuSol(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, image_path, type_element):
         super().__init__()

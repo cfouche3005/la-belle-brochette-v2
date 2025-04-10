@@ -132,7 +132,7 @@ class Runtime():
                 self.power_ups.add(power_up)
 
         for x, y, width, height in plateformes_fixes:
-            texture = random.choice(["assets/VOITURE2.png", "assets/GROUND.jpg"])
+            texture =  "assets/GROUND.jpg"
             plateforme = Plateforme(x, y, width, height, texture)
             self.platforms.add(plateforme)
 
