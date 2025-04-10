@@ -40,6 +40,10 @@ class Bullet(pygame.sprite.Sprite):
                     # Handle collision with the platform
                     self.callback()
                     break
+            if self.env.checkCollisionWithEnnemy(self.rect):
+                print("Collision with ennemy detected")
+                # Handle collision with the ennemy
+                self.callback()
     def checkIfOutOfScreen(self):
         """
         Check if the bullet is out of the screen

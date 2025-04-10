@@ -98,6 +98,26 @@ class Env:
         """Met à jour l'état des ennemis"""
         for enemy in self.enemies:
             enemy.update(self.platforms)
+    def checkCollisionWithEnnemy(self, rect: pygame.Rect):
+        """
+        Check if the rect collides with any enemy
+        :param rect: pygame.Rect
+        :return: True if collides, False otherwise
+        """
+        for enemy in self.enemies:
+            if rect.colliderect(enemy.rect):
+                self.killEnemy(enemy)
+                return True
+        return False
+    def killEnemy(self, enemy):
+        """
+        Kill the enemy
+        :param enemy: Enemy to kill
+        """
+        if enemy in self.enemies:
+            self.enemies.remove(enemy)
+            enemy.kill()
+
     def moveRight(self):
         self.x -= 5
         if self.x < -self.width + self.screenWidth:
