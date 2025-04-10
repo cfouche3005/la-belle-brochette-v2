@@ -7,15 +7,14 @@ from game.camera import Camera
 from entities.enemy import Enemy
 
 PLATFORME_TEXTUREPATH = {
-    "assets1": "assets/VOITURE2.png",
     "assets2": "assets/GROUND.jpg",
 }
 
 ELEMENT_TEXTUREPATH = {
-    "porte": "assets/PORTE.png",
-    "escalier": "assets/ESCALIER1.png",
-    "trou": "assets/TROU1.png",
-    "crayon": "assets/CRAYON_JW.png"
+    "porte": "assets/porte_noire.png",
+    "escalier": "assets/escalier_urbain.png",
+    "trou": "assets/trou_sol.png",
+    "crayon": "assets/crayon.png"
 
 }
 
@@ -40,6 +39,7 @@ class Env:
 
         self.enemies = pygame.sprite.Group()
 
+        self.power_group = pygame.sprite.Group()
 
         self.loadbackground()
         self.loadPlatforms()
@@ -79,11 +79,13 @@ class Env:
                 texture = random.choice(list(PLATFORME_TEXTUREPATH.values()))
             platform = Plateforme(x, y, width, height, texture, platform_type)
             self.platforms.add(platform)
+
     def loadElements(self):
         for x, y, type_element in elements_sol_fixes:
             if type_element in ELEMENT_TEXTUREPATH:
                 element = ElementAuSol(x, y, 50, 50, ELEMENT_TEXTUREPATH[type_element], type_element)
                 self.element_group.add(element)
+
     def draw(self):
         bg_rect = pygame.Rect(self.x + self.camera.offset_x, self.y, self.width, self.height)
         self.screen.blit(self.background, bg_rect)
