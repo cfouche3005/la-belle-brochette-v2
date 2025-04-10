@@ -4,6 +4,7 @@ import pygame
 
 from environnement.environnement_jeu import plateformes_fixes, Plateforme, elements_sol_fixes, ElementAuSol
 from game.camera import Camera
+from entities.enemy import Enemy
 
 PLATFORME_TEXTUREPATH = {
     "assets1": "assets/VOITURE2.png",
@@ -37,11 +38,27 @@ class Env:
         self.platforms = pygame.sprite.Group()
         self.element_group = pygame.sprite.Group()
 
+        self.enemies = pygame.sprite.Group()
+
 
         self.loadbackground()
         self.loadPlatforms()
         self.loadElements()
+        self.spawnEnemies(5)
 
+    def spawnEnemies(self, count):
+        valid_platforms = [p for p in self.platforms if p.type != "escalier"]
+        if not valid_platforms:
+            return
+
+        for _ in range(count):
+            platform = random.choice(valid_platforms)
+            x = random.randint(platform.rect.left, platform.rect.right - 30)
+            y = platform.rect.top
+
+            enemy = Enemy(x, y)
+            enemy.current_platform = platform
+            self.enemies.add(enemy)
     def loadbackground(self):
         try:
             self.background = pygame.image.load(self.background_path).convert()
@@ -74,7 +91,13 @@ class Env:
             self.screen.blit(platform.image, self.camera.apply(platform))
         for element in self.element_group:
             self.screen.blit(element.image, self.camera.apply(element))
+        for enemy in self.enemies:
+            self.screen.blit(enemy.image, self.camera.apply(enemy))
 
+    def update(self):
+        """Met à jour l'état des ennemis"""
+        for enemy in self.enemies:
+            enemy.update(self.platforms)
     def moveRight(self):
         self.x -= 5
         if self.x < -self.width + self.screenWidth:
