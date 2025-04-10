@@ -149,12 +149,31 @@ class Runtime():
         # Configuration du joueur
         self.player.set_game_over_image(self.game_over_image)
     def loadPowerUps(self):
+        powerup_textures = {
+            "chargeur": "assets/munition.png",
+            "km":"assets/kit_medical.png"
+        }
         for x, y, type_powerup in positions_powerups:
             if type_powerup in POWERUP_TEXTUREPATH:
                 texture = POWERUP_TEXTUREPATH[type_powerup]
                 power_up = PU(x, y, texture, type_powerup)
                 self.power_ups.add(power_up)
 
+        for x, y, width, height in plateformes_fixes:
+            texture =  "assets/GROUND.jpg"
+            plateforme = Plateforme(x, y, width, height, texture)
+            self.platforms.add(plateforme)
+
+        for x, y, type_element in elements_sol_fixes:
+            textures = {
+                "porte": "assets/porte_noire.png",
+                "escalier": "assets/escalier_urbain.png",
+                "trou": "assets/trou_sol.png",
+                "crayon": "assets/crayon.png"
+            }
+            if type_element in textures:
+                element = ElementAuSol(x, y, 50, 50, textures[type_element], type_element)
+                self.element_group.add(element)
     def run(self):
         """Boucle principale du jeu."""
         self.changeGameState("menu")
