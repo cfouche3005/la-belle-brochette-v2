@@ -24,7 +24,7 @@ plateformes_fixes = [
 
 # Coordonnées fixes des éléments au sol
 elements_sol_fixes = [
-    (40, 500, "escalier"),
+    (100, 500, "trou"),
     (250, 500, "porte"),
     (600, 500, "porte"),
     (900, 500, "porte"),
@@ -55,7 +55,7 @@ class ElementAuSol(pygame.sprite.Sprite):
         self.width = width
         self.height = height
         self.image = pygame.image.load(image_path).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (60, 50))
+        self.image = pygame.transform.scale(self.image, (50, 70 ))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.type = type_element #Aide de GPT qui a indiqué qu'il fallait ajouter le .type dans la fonction
@@ -68,25 +68,25 @@ class ElementAuSol(pygame.sprite.Sprite):
         la fonction ouvrir était placée dans la classe Porte. Ce problème s'est résolu quand j'ai mis la fonction ouvrir dans la classe mère "ElementAuSol"
         """
         self.etat = "ouverte"
-        self.image_ouverte = "assets/PORTE_OUVERTE.png"
+        self.image_ouverte = ("assets/porte_ouverte.jpg")
         self.image = pygame.image.load(self.image_ouverte).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (60, 50))
+        self.image = pygame.transform.scale(self.image, (50, 70))
 
 class Porte(ElementAuSol):
     def __init__(self, x, y,  type_element):
-        super().__init__(x, y, type_element, "assets/PORTE.png" )
+        super().__init__(x, y, type_element, "assets/porte_noire.png" )
 
 class Escalier(ElementAuSol):
     def __init__(self, x, y):
-        super().__init__(x, y, "assets/ESCALIER1.png")
+        super().__init__(x, y, "assets/escalier_urbain.png")
 
 class Trou(ElementAuSol):
     def __init__(self, x, y):
-        super().__init__(x, y, "assets/TROU1.png")
+        super().__init__(x, y, "assets/trou_sol.png")
 
 class Crayon(ElementAuSol):
     def __init__(self, x, y):
-        super().__init__(x, y, "assets/crayon_JW.png")
+        super().__init__(x, y, "assets/crayon.png")
 
 
 class PU(pygame.sprite.Sprite):
@@ -101,12 +101,12 @@ class PU(pygame.sprite.Sprite):
 
 class Chargeur(PU):
     def __init__(self, x, y_platform ):
-        super().__init__(x, y_platform, "assets/balles.png")
+        super().__init__(x, y_platform, "assets/munition.png")
         self.degats -= 1
 
 class Kit_Med(PU):
     def __init__(self, x, y_platform):
-        super().__init__(x, y_platform, "assets/KM_PA.jpg")
+        super().__init__(x, y_platform, "assets/kit_medical.png")
         self.vie += 1
 
 

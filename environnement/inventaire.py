@@ -9,9 +9,9 @@ class Inventaire:
             "km": 0
         }
         self.textures = {
-            "chargeur": pygame.transform.scale(pygame.image.load("assets/balles.png"), (30, 30)),
-            "crayon": pygame.transform.scale(pygame.image.load("assets/CRAYON_JW.png"), (30, 30)),
-            "km": pygame.transform.scale(pygame.image.load("assets/KM_PA.jpg"), (30, 30)),
+            "chargeur": pygame.transform.scale(pygame.image.load("assets/munition.png"), (30, 30)),
+            "crayon": pygame.transform.scale(pygame.image.load("assets/crayon.png"), (30, 30)),
+            "km": pygame.transform.scale(pygame.image.load("assets/kit_medical.png"), (30, 30)),
         }
 
         self.font = pygame.font.SysFont("Arial", 20) # Avec GPT

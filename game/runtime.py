@@ -121,8 +121,8 @@ class Runtime():
         self.static_blocks.append(blue_block)
 
         powerup_textures = {
-            "chargeur": "assets/balles.png",
-            "km":"assets/KM_PA.jpg"
+            "chargeur": "assets/munition.png",
+            "km":"assets/kit_medical.png"
         }
         for x, y, type_powerup in positions_powerups:
             if type_powerup in powerup_textures:
@@ -138,10 +138,10 @@ class Runtime():
 
         for x, y, type_element in elements_sol_fixes:
             textures = {
-                "porte": "assets/PORTE.png",
-                "escalier": "assets/ESCALIER1.png",
-                "trou": "assets/TROU1.png",
-                "crayon": "assets/CRAYON_JW.png"
+                "porte": "assets/porte_noire.png",
+                "escalier": "assets/escalier_urbain.png",
+                "trou": "assets/trou_sol.png",
+                "crayon": "assets/crayon.png"
             }
             if type_element in textures:
                 element = ElementAuSol(x, y, 50, 50, textures[type_element], type_element)
