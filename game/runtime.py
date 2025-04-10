@@ -1,19 +1,13 @@
 import pygame
-import random
-from environnement.environnement_jeu import ElementAuSol, Plateforme, PU
+
 from entities.player.player import Player
 from game.env import Env
 from game.camera import Camera
 from menu.menu import Menu
 from entities.staticblock import StaticBlock
 from environnement.vie import BarreDeVie
-from environnement.environnement_jeu import plateformes_fixes, positions_powerups, elements_sol_fixes
-from environnement.inventaire import Inventaire
-
-POWERUP_TEXTUREPATH = {
-    "chargeur": "assets/munition.png",
-    "km": "assets/kit_medical.png"
-}
+from environnement.environnement_jeu import Chargeur, Kit_Med
+from environnement.environnement_jeu import generate_powerups, generate_platforms
 
 class Runtime():
     def __init__(self, window_size):
@@ -34,7 +28,9 @@ class Runtime():
         self.trous = pygame.sprite.Group()
         self.barre_de_vie = BarreDeVie(max_vies=5)
         self.element_group = pygame.sprite.Group()
-
+        self.plateformes_fixes = generate_platforms()
+        self.generate_and_add_powerups()
+        # Plateformes fixes
 
         # Chargement des ressources
         self.game_over_image = pygame.image.load("assets/fond.png")
@@ -142,34 +138,18 @@ class Runtime():
         # Ajout d'un bloc statique
         blue_block = StaticBlock(2000, 500, 100, 100)
 
-        # Configuration des power-ups
-        self.loadPowerUps()
-
         # Configuration du joueur
         self.player.set_game_over_image(self.game_over_image)
 
-    def loadPowerUps(self):
-        powerup_textures = {
-            "chargeur": "assets/munition.png",
-            "km":"assets/kit_medical.png"
-        }
-        for x, y, type_powerup in positions_powerups:
-            if type_powerup in POWERUP_TEXTUREPATH:
-                texture = POWERUP_TEXTUREPATH[type_powerup]
-                power_up = PU(x, y, texture, type_powerup)
-                self.power_ups.add(power_up)
-
-
-        for x, y, type_element in elements_sol_fixes:
-            textures = {
-                "porte": "assets/porte_noire.png",
-                "escalier": "assets/escalier_urbain.png",
-                "trou": "assets/trou_sol.png",
-                "crayon": "assets/crayon.png"
-            }
-            if type_element in textures:
-                element = ElementAuSol(x, y, 50, 50, textures[type_element], type_element)
-                self.element_group.add(element)
+    def generate_and_add_powerups(self):
+        """ Génère des PUs (chargeur ou kit médical) et les placent sur certaines plateformes"""
+        positions_powerups = generate_powerups(self.plateformes_fixes)
+        for pos in positions_powerups:
+            x, y, power_up_type = pos
+            if power_up_type == "chargeur":
+                self.power_ups.add(Chargeur(x, y))
+            elif power_up_type == "km":
+                self.power_ups.add(Kit_Med(x, y))
 
     def run(self):
         """Boucle principale du jeu."""

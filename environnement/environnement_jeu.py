@@ -11,11 +11,10 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 
 def generate_platforms():
     plateformes_fixes = []
-    for i in range(0, 1280, 50):
+    for i in range(0, 5000, 50):
         if random.random() > 0.2:  # 80% de chance de créer une plateforme
             plateformes_fixes.append((i, 500, 100, 50, "platform"))
     return plateformes_fixes
-
 
 plateformes_fixes = generate_platforms()
 plateformes_fixes.append((40, 400, 50, 50, "escalier") )
@@ -43,19 +42,32 @@ plateformes_fixes.append((40, 400, 50, 50, "escalier") )
 # Coordonnées fixes des éléments au sol
 elements_sol_fixes = [
     #(40, 400, "escalier"),
-    (100, 475, "trou"),
+    (100, 520, "trou"),
     (250, 430, "porte"),
-    (600, 475, "trou"),
-    (900, 430, "porte"),
+    (600, 520, "trou"),
+    (900, 470, "porte"),
     (1200, 430, "escalier"),
     (1500, 430, "porte"),
-    (1700, 475, "trou"),
+    (1700, 520, "trou"),
     (1900, 430, "escalier"),
     (1000, 430, "crayon"),
 ]
 sol_y = 450
 
-positions_powerups = [(200, 450, "km"),(400, 440, "chargeur"), (550, 410, "chargeur"), (700, 480, "km"), (900, 450, "chargeur")]
+def generate_powerups(plateformes_fixes):
+    """Génère des PUs soit sur le sol ou bien sur les plateformes"""
+    positions_powerups = []
+    for plat in plateformes_fixes:
+        if random.random() < 0.4:
+            power_up_type = random.choice(["chargeur", "km"])
+            if random.random() < 0.5:
+                power_up_x = plat[0] + random.randint(0, 100)
+                power_up_y = plat[1] - 25
+            else:
+                power_up_x = plat[0] + random.randint(0, 100)
+                power_up_y = 450
+            positions_powerups.append((power_up_x, power_up_y, power_up_type))
+    return positions_powerups
 
 class Plateforme(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, image_path, type_platform: str):
@@ -121,18 +133,17 @@ class PU(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect()
         self.rect.x = x
-        self.rect.y = random.choice([y_platform - self.rect.height, 450])
+        self.rect.y = y_platform
         self.type = type_powerup
 
 class Chargeur(PU):
     def __init__(self, x, y_platform ):
-        super().__init__(x, y_platform, "assets/munition.png")
-        self.degats -= 1
+        super().__init__(x, y_platform, "assets/munition.png", "chargeur")
 
 class Kit_Med(PU):
     def __init__(self, x, y_platform):
-        super().__init__(x, y_platform, "assets/kit_medical.png")
-        self.vie += 1
+        super().__init__(x, y_platform, "assets/kit_medical.png", "km")
+
 
 
 
