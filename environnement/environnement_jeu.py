@@ -5,22 +5,18 @@ screen_height = 720
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 # Coordonnées fixes des plateformes
-plateformes_fixes = [
-    (100, 200, 10, 20),
-    (250, 200, 150, 20),
-    (400, 200, 150, 20),
-    (590, 200, 150, 20),
-    (1000, 200, 150, 20),
-    (1250, 300, 150, 20),
-    (1400, 300, 150, 20),
-    (1590, 300, 150, 20),
-    (3500, 500, 150, 20),
-    (4000, 250, 150, 20),
-    (4500, 250, 150, 20),
-    (5000, 400, 150, 20),
-    (5500, 250, 150, 20),
-    (6000, 450, 150, 20),
-]
+# Génerer des plateformes de 30px de large et 30px de haut à la suite ( avec des trous aléatoires)
+
+def generate_platforms():
+    plateformes_fixes = []
+    for i in range(0, 1280, 50):
+        if random.random() > 0.2:  # 80% de chance de créer une plateforme
+            plateformes_fixes.append((i, 500, 50, 50))
+    return plateformes_fixes
+
+
+plateformes_fixes = generate_platforms()
+
 
 # Coordonnées fixes des éléments au sol
 elements_sol_fixes = [

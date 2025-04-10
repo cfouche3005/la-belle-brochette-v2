@@ -143,7 +143,7 @@ class Runtime:
         blue_block = StaticBlock(2000, 500, 100, 100)
 
         # Configuration des power-ups
-        self.loadPowerUps()
+        #self.loadPowerUps()
 
         # Configuration du joueur
         self.player.set_game_over_image(self.game_over_image)
