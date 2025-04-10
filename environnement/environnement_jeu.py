@@ -11,9 +11,9 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 
 def generate_platforms():
     plateformes_fixes = []
-    for i in range(0, 1280, 50):
+    for i in range(0, 1280*3, 100):
         if random.random() > 0.2:  # 80% de chance de créer une plateforme
-            plateformes_fixes.append((i, 500, 50, 50, "platform"))
+            plateformes_fixes.append((i, 500, 100, 50, "platform"))
     return plateformes_fixes
 
 
