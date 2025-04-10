@@ -10,6 +10,9 @@ class BarreDeVie:
         self.coeur_image = pygame.transform.scale(self.coeur_image, (50, 50))
 
     def perdre_vie(self, damage):
+        """
+        dès que le personnage reçoit des dégats soit d'une chute ou bien d'une arme il perd des vies
+        """
         self.vies -= damage
         if self.vies < 0:
             self.vies = 0

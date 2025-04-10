@@ -17,7 +17,7 @@ POWERUP_TEXTUREPATH = {
 
 
 
-class Runtime:
+class Runtime():
     def __init__(self, window_size):
         # Initialisation de Pygame
         pygame.init()
@@ -136,7 +136,8 @@ class Runtime:
         self.player = player
         self.camera = camera
         self.env = Env(1280, 720, "assets/bg.jpeg", self.screen, camera)
-
+        self.player.set_game_over_image(self.game_over_image)
+        self.barre_de_vie = BarreDeVie(3)
 
 
         # Ajout d'un bloc statique
@@ -169,8 +170,19 @@ class Runtime:
                         elif self.gameState == "pause":
                             self.changeGameState("game")
                     elif event.key == pygame.K_w:
-                        self.player.ramasser_pistolet(self.power_ups)
+                        self.player.ramasser_chargeur(self.power_ups)
                         self.player.ramasser_km(self.power_ups)
+                        self.player.ramasser_crayon(self.env.element_group)
+                    elif event.key == pygame.K_q:
+                        self.player.monter_escaliers(self.env.element_group)
+                    elif event.key == pygame.K_e:
+                        self.player.ouvrir_portes(self.env.element_group)
+                    elif event.key == pygame.K_s:
+                        if self.player.vie.vies < 5 and self.player.inventaire.possede("km"):
+                            self.player.vie.vies += 1  # Augmente les vies du joueur
+                            self.player.gagner_vie()  # Ajoute un coeur
+                            self.player.inventaire.retirer("km")  # Retire un KM
+                            print("KM utilisé ! Vie restante :", self.player.vie.vies)
 
             self.screen.fill("black")
 
@@ -207,9 +219,9 @@ class Runtime:
             block.draw(self.screen, self.camera)
             block.moveLeft()
 
-        # Gestion de l'état "gameover"
+        # Si la vie est à 0, afficher l'image de Game Over
         if self.player.vie.vies <= 0 and self.gameState == "gameover":
-            self.player.afficher_game_over(self.screen)
+            self.player.afficher_game_over()
             pygame.display.update()
             pygame.time.delay(2000)
             self.changeGameState("menu")

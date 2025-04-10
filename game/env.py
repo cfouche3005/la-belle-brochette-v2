@@ -11,7 +11,7 @@ PLATFORME_TEXTUREPATH = {
 }
 
 ELEMENT_TEXTUREPATH = {
-    "porte": "assets/PORTE1.png",
+    "porte": "assets/PORTE.png",
     "escalier": "assets/ESCALIER1.png",
     "trou": "assets/TROU1.png",
     "crayon": "assets/CRAYON_JW.png"
@@ -53,10 +53,14 @@ class Env:
             print(f"Error loading background: {e}")
 
     def loadPlatforms(self):
-        for x, y, width, height in plateformes_fixes:
-            # Choix aléatoire de la texture parmi les options disponibles
-            texture = random.choice(list(PLATFORME_TEXTUREPATH.values()))
-            platform = Plateforme(x, y, width, height, texture)
+        for x, y, width, height, platform_type in plateformes_fixes:
+            texture = None
+            if platform_type == "escalier":
+                texture = ELEMENT_TEXTUREPATH[platform_type]
+            else:
+                # Choix aléatoire de la texture parmi les options disponibles
+                texture = random.choice(list(PLATFORME_TEXTUREPATH.values()))
+            platform = Plateforme(x, y, width, height, texture, platform_type)
             self.platforms.add(platform)
     def loadElements(self):
         for x, y, type_element in elements_sol_fixes:
