@@ -1,5 +1,6 @@
-import pygame, random
-from environnement.environnement_jeu import ElementAuSol, Plateforme, PU, Crayon
+import pygame
+import random
+from environnement.environnement_jeu import ElementAuSol, Plateforme, PU
 from entities.player.player import Player
 from game.env import Env
 from game.camera import Camera
@@ -9,126 +10,153 @@ from environnement.vie import BarreDeVie
 from environnement.environnement_jeu import plateformes_fixes, positions_powerups, elements_sol_fixes
 
 
+POWERUP_TEXTUREPATH = {
+    "pistolet": "assets/PISTOLET_PA.jpg",
+    "km": "assets/KM_PA.jpg"
+}
+
+
 
 class Runtime():
     def __init__(self, window_size):
-        # Pygame initialization
+        # Initialisation de Pygame
         pygame.init()
         pygame.font.init()
+
+        # Configuration de la fenêtre et des variables principales
         self.screen = pygame.display.set_mode(window_size)
         self.clock = pygame.time.Clock()
         self.dt = 0
         self.isRunning = True
-        self.gameState = "menu" # menu, game, pause
-        self.platforms = pygame.sprite.Group()
-        self.element_group = pygame.sprite.Group()
+        self.gameState = "menu"  # États possibles : menu, game, pause, gameover
+
+        # Groupes et entités
         self.power_ups = pygame.sprite.Group()
+        self.static_blocks = []
+        self.trous = pygame.sprite.Group()
         self.barre_de_vie = BarreDeVie(max_vies=5)
 
-        self.game_over_image = pygame.image.load("assets/fond.png")  # Charger l'image Game Over ici
+        # Chargement des ressources
+        self.game_over_image = pygame.image.load("assets/fond.png")
         self.game_over_image = pygame.transform.scale(self.game_over_image, window_size)
 
-        self.enemies = None   # Liste des ennemis
-        self.env = None  # Environ
-        self.camera = None    # Camera
-        self.menu = None      # Menu
-        self.pauseMenu = None # Menu de pause
+        # Entités principales
+        self.player = None
+        self.env = None
+        self.camera = None
+
+        # Menus
+        self.menu = None
+        self.pauseMenu = None
+
+        # Chargement des menus
         self.loadMenu()
         self.loadPauseMenu()
-        self.elements_sol = pygame.sprite.Group()
+
     def changeGameState(self, state: str):
         """
-        Change l'état du jeu
-        :param state: menu, game, pause
+        Change l'état du jeu.
+        :param state: menu, game, pause, gameover
         """
-        if state == "menu":
-            self.gameState = "menu"
-        elif state == "game":
-            self.gameState = "game"
-        elif state == "pause":
-            self.gameState = "pause"
-        elif state == "gameover":  # Ajouter "gameover" comme état valide
-            self.gameState = "gameover"
+        valid_states = ["menu", "game", "pause", "gameover"]
+        if state in valid_states:
+            if state == "menu":
+                self.menu.launchMusic()
+            elif state == "game":
+                self.menu.stopMusic()
+
+            self.gameState = state
         else:
             raise ValueError("Invalid game state")
 
     def loadMenu(self):
+        """Initialise le menu principal."""
         menu = Menu(self.screen)
+        middle_x = self.screen.get_width() // 2
+        middle_y = self.screen.get_height() // 2
+
         menu.addButton(
-            x = 100,
-            y = 100,
-            width = 200,
-            height = 50,
-            text = "Play",
+            x=middle_x,
+            y=middle_y,
+            width=300,
+            height=50,
+            text="Play The Boogeyman",
             radius=20,
-            fontsize = 30,
-            inactiveColor = (255, 0, 0),
-            hoverColor = (0, 255, 0),
-            onClick = lambda: self.changeGameState("game")
+            fontsize=30,
+            inactiveColor=(80, 80, 80),
+            hoverColor=(150, 150, 150),
+            onClick=lambda: self.changeGameState("game")
         )
-        menu.addText(200, 200, "Welcome to the Game!", 30, (255, 255, 255))
+        menu.addText(
+            middle_x,
+            middle_y - 100,
+            "...He Stole John Wick's Car, Sir, And, Uhhh... Killed His Dog.",
+            30,
+            (255, 255, 255)
+        )
+        menu.loadBackground("assets/menu.png")
+        menu.attatchMusic("assets/music/Assassins.mp3")
         self.menu = menu
 
     def loadPauseMenu(self):
+        """Initialise le menu de pause."""
         menu = Menu(self.screen)
+        middle_x = self.screen.get_width() // 2
+        middle_y = self.screen.get_height() // 2
         menu.addButton(
-            x = 100,
-            y = 100,
-            width = 200,
-            height = 50,
-            text = "Resume",
+            x=100,
+            y=100,
+            width=200,
+            height=50,
+            text="Resume",
             radius=20,
-            fontsize = 30,
-            inactiveColor = (255, 0, 0),
-            hoverColor = (0, 255, 0),
-            onClick = lambda: self.changeGameState("game")
+            fontsize=30,
+            inactiveColor=(255, 0, 0),
+            hoverColor=(0, 255, 0),
+            onClick=lambda: self.changeGameState("game")
         )
         menu.addButton(
-            x = 100,
-            y = 200,
-            width = 200,
-            height = 50,
-            text = "Quit",
+            x=middle_x,
+            y=middle_y,
+            width=300,
+            height=50,
+            text="Quit",
             radius=20,
-            fontsize = 30,
-            inactiveColor = (255, 0, 0),
-            hoverColor = (0, 255, 0),
-            onClick = lambda: self.changeGameState("menu")
+            fontsize=30,
+            inactiveColor=(255, 0, 0),
+            hoverColor=(0, 255, 0),
+            onClick=lambda: self.changeGameState("menu")
         )
         self.pauseMenu = menu
 
-    def setup(self, player: Player, env: Env, camera: Camera, power_ups : PU, platforms : Plateforme, elt_group : ElementAuSol):
+    def setup(self, player: Player, camera: Camera):
         """
-        :param player: The player object
-        :param env: The environment object
-        :param camera: The camera object
-        :return:
+        Configure les entités et l'environnement du jeu.
         """
         self.player = player
-        self.platforms = []
-        self.power_ups = power_ups
-        self.platforms = pygame.sprite.Group()
-        self.element_group = pygame.sprite.Group()
-        self.enemies = ...
-        self.trous = pygame.sprite.Group()
+        self.camera = camera
+        self.env = Env(1280, 720, "assets/bg.jpeg", self.screen, camera)
         self.player.set_game_over_image(self.game_over_image)
         self.barre_de_vie = BarreDeVie(3)
 
-        self.env = env
-        self.camera = camera
-        self.static_blocks = []
-        blue_block = StaticBlock(2000, 200, 100, 100)
-        self.static_blocks.append(blue_block)
 
+        # Ajout d'un bloc statique
+        blue_block = StaticBlock(2000, 500, 100, 100)
+
+        # Configuration des power-ups
+        #self.loadPowerUps()
+
+        # Configuration du joueur
+        self.player.set_game_over_image(self.game_over_image)
+    def loadPowerUps(self):
         powerup_textures = {
             "chargeur": "assets/munition.png",
             "km":"assets/kit_medical.png"
         }
         for x, y, type_powerup in positions_powerups:
-            if type_powerup in powerup_textures:
-                # Crée un power-up en fonction de son type et de la position
-                texture = powerup_textures[type_powerup]
-                power_up = PU(x, y, texture, type_powerup)  # Crée le PU avec la bonne texture
+            if type_powerup in POWERUP_TEXTUREPATH:
+                texture = POWERUP_TEXTUREPATH[type_powerup]
+                power_up = PU(x, y, texture, type_powerup)
                 self.power_ups.add(power_up)
 
         for x, y, width, height in plateformes_fixes:
@@ -146,8 +174,9 @@ class Runtime():
             if type_element in textures:
                 element = ElementAuSol(x, y, 50, 50, textures[type_element], type_element)
                 self.element_group.add(element)
-
     def run(self):
+        """Boucle principale du jeu."""
+        self.changeGameState("menu")
         while self.isRunning:
             events = pygame.event.get()
             for event in events:
@@ -162,11 +191,11 @@ class Runtime():
                     elif event.key == pygame.K_w:
                         self.player.ramasser_chargeur(self.power_ups)
                         self.player.ramasser_km(self.power_ups)
-                        self.player.ramasser_crayon(self.element_group)
+                        self.player.ramasser_crayon(self.env.element_group)
                     elif event.key == pygame.K_q:
-                        self.player.monter_escaliers(self.element_group)
+                        self.player.monter_escaliers(self.env.element_group)
                     elif event.key == pygame.K_e:
-                        self.player.ouvrir_portes(self.element_group)
+                        self.player.ouvrir_portes(self.env.element_group)
                     elif event.key == pygame.K_s:
                         if self.player.vie.vies < 5 and self.player.inventaire.possede("km"):
                             self.player.vie.vies += 1  # Augmente les vies du joueur
@@ -180,37 +209,38 @@ class Runtime():
                 self.menu.draw()
                 self.menu.detect_click(events)
             elif self.gameState == "game":
-                bg_rect = pygame.Rect(self.env.x + self.camera.offset_x, self.env.y, self.env.width, self.env.height)
-                self.screen.blit(self.env.background, bg_rect)
-                self.player.draw(self.screen, self.camera)
-                self.player.update(self.env, self.camera)
-                self.player.check_trou_collision(elements_sol_fixes, self)
-                self.barre_de_vie.draw(self.screen)
-                self.player.inventaire.draw(self.screen)
-                for plateforme in self.platforms:
-                    self.screen.blit(plateforme.image, self.camera.apply(plateforme))
-
-                    # Afficher les éléments au sol
-                for element in self.element_group:
-                    self.screen.blit(element.image, self.camera.apply(element))
-                    # Afficher les power-ups
-                for power_up in self.power_ups:
-                    self.screen.blit(power_up.image, self.camera.apply(power_up))
-                for block in self.static_blocks:
-                    block.draw(self.screen, self.camera)
-
-                    # Si la vie est à 0, afficher l'image de Game Over
-                    if self.player.vie.vies <= 0 and self.gameState == "gameover":
-                        self.player.afficher_game_over()
-                        pygame.display.update()
-                        pygame.time.delay(2000)
-                        self.changeGameState("menu")
-
+                self.updateGame()
             elif self.gameState == "pause":
                 self.pauseMenu.draw()
                 self.pauseMenu.detect_click(events)
 
             pygame.display.flip()
             self.dt = self.clock.tick(60) / 1000
-            pygame.display.update()
+
         pygame.quit()
+
+    def updateGame(self):
+        """Met à jour et dessine les éléments du jeu."""
+        # Dessin de l'environnement
+        self.env.draw()
+
+        # Mise à jour et dessin du joueur
+        self.player.update(self.env, self.camera)
+        self.player.draw(self.screen, self.camera)
+        self.player.check_trou_collision(self.env.element_group, self)
+
+        # Dessin des power-ups
+        for power_up in self.power_ups:
+            self.screen.blit(power_up.image, self.camera.apply(power_up))
+
+        # Dessin des blocs statiques
+        for block in self.static_blocks:
+            block.draw(self.screen, self.camera)
+            block.moveLeft()
+
+        # Si la vie est à 0, afficher l'image de Game Over
+        if self.player.vie.vies <= 0 and self.gameState == "gameover":
+            self.player.afficher_game_over()
+            pygame.display.update()
+            pygame.time.delay(2000)
+            self.changeGameState("menu")

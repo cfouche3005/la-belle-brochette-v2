@@ -8,6 +8,8 @@ class Menu:
         self.screen = screen
         self.font = pygame.font.SysFont("Arial", 30)
         self.texts = []
+        self.music = None
+        self.music_active = False
 
     def addButton(self, x: int, y :int, width: int, height: int, text : str, fontsize :int, radius : int, inactiveColor : tuple, hoverColor: tuple, onClick: callable):
         """
@@ -45,10 +47,12 @@ class Menu:
         :param fontsize: The font size of the text
         :param color: The color of the text
         """
+        new_posx = x - self.font.size(txt)[0] // 2
+        new_posy = y - self.font.size(txt)[1] // 2
         tempText = text(
             screen=self.screen,
             text=txt,
-            position=(x, y),
+            position=(new_posx, new_posy),
             clr=color,
             font_size=fontsize,
             mid=True
@@ -62,7 +66,39 @@ class Menu:
                     for button in self.buttons:
                         if button.rect.collidepoint(event.pos):
                             button.call_back()
+    def attatchMusic(self, music_path: str):
+        """
+        Attatch a music file to the menu
+        :param music_path: The path to the music file
+        """
+        self.music = music_path
+    def launchMusic(self):
+        """
+        Launch the music
+        """
+        if self.music and not self.music_active:
+            print("Playing music")
+            pygame.mixer.music.load(self.music)
+            pygame.mixer.music.play(-1)
+            self.music_active = True
+    def stopMusic(self):
+        """
+        Stop the music
+        """
+        if self.music and self.music_active:
+            pygame.mixer.music.stop()
+            self.music_active = False
+    def loadBackground(self, image_path: str):
+        """
+        Load a background image for the menu
+        :param image_path: The path to the image file
+        """
+        self.background = pygame.image.load(image_path)
+        self.background = pygame.transform.scale(self.background, (self.screen.get_width(), self.screen.get_height()))
     def draw(self):
+
+        if hasattr(self, 'background'):
+            self.screen.blit(self.background, (0, 0))
         for button in self.buttons:
             button.draw()
         for text in self.texts:

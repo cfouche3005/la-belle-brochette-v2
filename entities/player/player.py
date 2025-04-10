@@ -1,5 +1,6 @@
 import pygame, math
 
+from entities.bullet import Bullet
 from game.camera import Camera
 from game.env import Env
 from environnement.vie import BarreDeVie
@@ -9,6 +10,9 @@ from environnement.inventaire import Inventaire
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height):
         super().__init__()
+        self.projectile = []
+        self.cooldown = 0
+
         self.image = pygame.Surface((width, height))
         self.image.fill((255, 44, 102))
         self.rect = self.image.get_rect()
@@ -20,11 +24,20 @@ class Player(pygame.sprite.Sprite):
         self.jump_height = 10
         self.gravity = 0.5
         self.velocity = 0
-        self.vie = BarreDeVie(3)
+        self.vie = BarreDeVie(5)
         self.platforms_invisibles = []
         self.inventaire = Inventaire()
-        self.coeur_image =  pygame.transform.scale(pygame.image.load("assets/COEUR_PA.png"), (50, 50))
+        self.coeur_image = pygame.transform.scale(pygame.image.load("assets/COEUR_PA.png"), (50, 50))
         self.hearts =[]
+        self.on_ground = True
+
+    def shoot(self, angle):
+        print("shoot")
+        print("angle", angle)
+        # Implémentation de la logique de tir
+        bullet = Bullet(self.rect.x, self.rect.y, 10, 10, (0,0,0) , angle)
+        self.projectile.append(bullet)
+        self.vie = BarreDeVie(5)
 
     #aide de GPT pour le l'utilisation de ".type", mais aussi pour les fonctions monter_escalier pour la plateforme invisible
     # et ouvrir_porte pour le "if isinstance(element, ElementAuSol):"
@@ -106,15 +119,12 @@ class Player(pygame.sprite.Sprite):
                         break #utilisation de break pour sortir de la boucle
 
     def check_trou_collision(self, elements_sol, runtime):
-        """
-        Permet au joueur d'éviter dans des trous. S'il tombe dedans il meurt instantanément.
-        Pour éviter les trous il doit sauter ou aller sur des plateformes
-        """
-        for x, y, type_element in elements_sol:
-            if type_element == "trou":
-                rect_trou = pygame.Rect(x, y, 50, 50)
+        for element in elements_sol:
+            if element.type == "trou":
+                rect_trou = pygame.Rect(element.rect.x, element.rect.y, 50, 50)
                 if self.rect.colliderect(rect_trou):
                     self.mourir(runtime)
+                    return
 
     def set_game_over_image(self, image):
         self.game_over_image = image
@@ -127,6 +137,41 @@ class Player(pygame.sprite.Sprite):
             screen = pygame.display.get_surface()
             screen.blit(self.game_over_image, (150, 150))
 
+    def check_platform_collisions_horizontal(self, env):
+        """Vérifie et gère les collisions horizontales avec les plateformes"""
+        for platform in env.platforms:  # On suppose que les plateformes sont accessibles via env.game.platforms
+            if self.rect.colliderect(platform.rect):
+                # Si c'est un escalier, on ne fait rien
+                if platform.type == "escalier":
+                    continue
+
+                # Si collision, annuler le mouvement horizontal
+                if self.rect.right > platform.rect.left and self.rect.left < platform.rect.left:
+                    self.rect.right = platform.rect.left
+                elif self.rect.left < platform.rect.right and self.rect.right > platform.rect.right:
+                    self.rect.left = platform.rect.right
+
+    def check_platform_collisions_vertical(self, env):
+        """Vérifie et gère les collisions verticales avec les plateformes"""
+        self.on_ground = False  # Pour savoir si le joueur est sur le sol ou une plateforme
+
+        for platform in env.platforms:  # On suppose que les plateformes sont accessibles via env.game.platforms
+            if self.rect.colliderect(platform.rect):
+
+                # Collision par le haut (le joueur est sur la plateforme)
+                if self.velocity > 0 and self.rect.bottom > platform.rect.top and self.rect.top < platform.rect.top:
+                    self.rect.bottom = platform.rect.top
+                    self.velocity = 0
+                    self.on_ground = True
+                # Collision par le bas (le joueur heurte une plateforme en sautant)
+                elif self.velocity < 0 and self.rect.top < platform.rect.bottom and self.rect.bottom > platform.rect.bottom:
+                    # Si la plateforme est un escalier, on ne fait rien
+                    if platform.type != "escalier":
+                        self.rect.top = platform.rect.bottom
+                        self.velocity = 0
+                    else:
+                        self.on_ground = True
+
     def gagner_vie(self):
         if len(self.hearts) < self.vie.vies:
             self.hearts.append(self.coeur_image)
@@ -138,6 +183,7 @@ class Player(pygame.sprite.Sprite):
         self.vie.vies = 0
         runtime.changeGameState("gameover")
 
+
     def update(self, env: Env, camera: Camera):
         keys = pygame.key.get_pressed()
 
@@ -148,10 +194,18 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += self.speed
         if keys[pygame.K_UP]:
             self.jump()
+        if keys[pygame.K_f]:
+            if self.cooldown == 0:
+                self.shoot(45)
+                self.cooldown = 5
+
+        self.check_platform_collisions_horizontal(env)
 
         # Appliquer la gravité
         self.velocity += self.gravity
         self.rect.y += self.velocity
+
+        self.check_platform_collisions_vertical(env)
 
         # Ajout d'une plateforme invisible pour permettre au joueur de rester en haut d'un escalier.
         # Lorsqu'il est au sommet de l'escalier, cette plateforme invisible lui permet de marcher ou sauter
@@ -175,10 +229,11 @@ class Player(pygame.sprite.Sprite):
 
         # Mise à jour de la caméra
         camera.update(self)
+        if self.cooldown > 0:
+            self.cooldown -= 1
 
     def jump(self):
-        if self.rect.y == 500 or self.rect.y == 450:
-            # ici 450 fait référence au sommet des escaliers, c'est-à-dire où se situe la plateforme invisible
+        if self.rect.y == 500 or self.on_ground:
             self.velocity = -self.jump_height
 
     def draw(self, surface, camera):
@@ -190,6 +245,8 @@ class Player(pygame.sprite.Sprite):
         # Dessin de l'entité avec le décalage de la caméra
         rect_camera = camera.apply(self)
         surface.blit(self.image, rect_camera)
+        for bullet in self.projectile:
+            bullet.draw(surface, camera)
 
         x_offset = 20
         y_offset = 20

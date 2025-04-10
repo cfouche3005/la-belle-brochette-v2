@@ -1,29 +1,48 @@
 import random, pygame
 
+from pygame.examples.midi import NullKey
+
 screen_width = 1280
 screen_height = 720
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 # Coordonnées fixes des plateformes
-plateformes_fixes = [
-    (100, 480, 125, 20),
-    (250, 440, 125, 20),
-    (500, 410, 125, 20),
-    (750, 380, 125, 20),
-    (1000, 480, 125, 20),
-    (1250, 480, 125, 20),
-    (1450, 450, 125, 20),
-    (1590, 350, 125, 20),
-    (3500, 500, 125, 20),
-    (4000, 250, 150, 20),
-    (4500, 250, 150, 20),
-    (5000, 400, 150, 20),
-    (5500, 250, 150, 20),
-    (6000, 450, 150, 20),
-]
+# Génerer des plateformes de 30px de large et 30px de haut à la suite ( avec des trous aléatoires)
+
+def generate_platforms():
+    plateformes_fixes = []
+    for i in range(0, 1280, 50):
+        if random.random() > 0.2:  # 80% de chance de créer une plateforme
+            plateformes_fixes.append((i, 500, 50, 50, "platform"))
+    return plateformes_fixes
+
+
+plateformes_fixes = generate_platforms()
+plateformes_fixes.append((40, 400, 50, 50, "escalier"))
+
+# SAVE:
+# plateformes_fixes = [
+#     (100, 480, 125, 20),
+#     (250, 440, 125, 20),
+#     (40, 400, None, None, "escalier"),
+#     (500, 410, 125, 20),
+#     (750, 380, 125, 20),
+#     (1000, 480, 125, 20),
+#     (1250, 480, 125, 20),
+#     (1450, 450, 125, 20),
+#     (1590, 350, 125, 20),
+#     (3500, 500, 125, 20),
+#     (4000, 250, 150, 20),
+#     (4500, 250, 150, 20),
+#     (5000, 400, 150, 20),
+#     (5500, 250, 150, 20),
+#     (6000, 450, 150, 20),
+# ]
+
 
 # Coordonnées fixes des éléments au sol
 elements_sol_fixes = [
+    #(40, 400, "escalier"),
     (100, 500, "trou"),
     (250, 500, "porte"),
     (600, 500, "porte"),
@@ -36,7 +55,7 @@ sol_y = 500
 positions_powerups = [(300, 500, "km"),(300, 440, "chargeur"), (4000, 410, "chargeur"), (1050, 480, "km"), (150, 500, "km")]
 
 class Plateforme(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, image_path):
+    def __init__(self, x, y, width, height, image_path, type_platform: str):
         super().__init__()
         self.width = width
         self.height = height
@@ -44,13 +63,14 @@ class Plateforme(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
+        self.type = type_platform
 
 class Trottoir(Plateforme):
     def __init__(self, x, y, width, height):
         super().__init__(x, y, width, height, "assets/GROUND.jpg")
 
 class ElementAuSol(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height, image_path, type_element):
+    def __init__(self, x, y, width, height, image_path, type_element: str):
         super().__init__()
         self.width = width
         self.height = height
@@ -58,6 +78,7 @@ class ElementAuSol(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (50, 70 ))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
+        self.type = type_element
         self.type = type_element #Aide de GPT qui a indiqué qu'il fallait ajouter le .type dans la fonction
         self.etat = "fermée"
 

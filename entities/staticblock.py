@@ -1,3 +1,5 @@
+import time
+
 import pygame
 
 
@@ -15,3 +17,10 @@ class StaticBlock(pygame.sprite.Sprite):
     def draw(self, surface, camera):
         rect_camera = camera.apply(self)
         surface.blit(self.image, rect_camera)
+
+    def moveLeft(self):
+        self.rect.x -= 100
+        if self.rect.x < 0:
+            self.rect.x = 0
+            return False
+        return True
