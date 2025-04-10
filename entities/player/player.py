@@ -20,9 +20,22 @@ class Player(pygame.sprite.Sprite):
         # Image de base (au repos)
         self.original_image = pygame.image.load("assets/frames/fire/fire(body)_0001.png").convert_alpha()
         self.image = self.original_image.copy()
-        self.rect = self.image.get_rect()
         self.width = width
         self.height = height
+
+        hitbox_width = int(width * 0.7)  # Largeur de la hitbox
+        hitbox_height = int(height * 0.7)
+
+        # Centrage de la hitbox
+        hitbox_x = x + (width - hitbox_width) // 2
+        hitbox_y = y + (height - hitbox_height) // 2
+
+        # Création de la hitbox
+        self.hitbox = pygame.Rect(hitbox_x, hitbox_y, hitbox_width, hitbox_height)
+
+
+        self.rect = self.image.get_rect()
+        self.update_rect_from_hitbox()
 
         # Chargement des images de marche
         self.walk_frames = []
@@ -65,6 +78,13 @@ class Player(pygame.sprite.Sprite):
         self.shooting_timer = 0
         self.shooting_duration = 10
 
+    def update_rect_from_hitbox(self):
+        """Mise à jour du rect d'affichage en fonction de la hitbox"""
+        # Le rect est plus grand que la hitbox, on le centre sur celle-ci
+        offset_x = (self.hitbox.width - self.rect.width) // 2
+        offset_y = (self.hitbox.height - self.rect.height) // 2
+        self.rect.x = self.hitbox.x - (self.rect.width + offset_x) // 2
+        self.rect.y = self.hitbox.y - (self.rect.height + offset_y)
 
     def shoot(self, angle, env: Env):
         print("shoot")
@@ -98,8 +118,8 @@ class Player(pygame.sprite.Sprite):
         """
         for pu in power_ups:
             if pu.type == "chargeur":
-                distance_x = self.rect.centerx - pu.rect.centerx
-                distance_y = self.rect.centery - pu.rect.centery
+                distance_x = self.hitbox.centerx - pu.rect.centerx
+                distance_y = self.hitbox.centery - pu.rect.centery
                 distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
                 if distance <= distance_min:
                     power_ups.remove(pu)
@@ -113,8 +133,8 @@ class Player(pygame.sprite.Sprite):
         """
         for pu in power_ups:
             if pu.type == "km":
-                distance_x = self.rect.centerx - pu.rect.centerx
-                distance_y = self.rect.centery - pu.rect.centery
+                distance_x = self.hitbox.centerx - pu.rect.centerx
+                distance_y = self.hitbox.centery - pu.rect.centery
                 distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
                 if distance <= distance_threshold:
                     power_ups.remove(pu)
@@ -128,29 +148,13 @@ class Player(pygame.sprite.Sprite):
         """
         for element in elements_sol:
             if element.type == "crayon":
-                distance_x = self.rect.centerx - element.rect.centerx
-                distance_y = self.rect.centery - element.rect.centery
+                distance_x = self.hitbox.centerx - element.rect.centerx
+                distance_y = self.hitbox.centery - element.rect.centery
                 distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
                 if distance <= distance_min:
                     elements_sol.remove(element)
                     self.inventaire.ajouter("crayon")
                     return
-
-    def monter_escaliers(self, elements_sol, distance_threshold=50):
-        """
-        Permet au joueur de monter les escaliers s'il est à une certaine distance d'un escalier
-        et appuie sur la touche Q.
-        """
-        for element in elements_sol:
-            if element.type == "escalier":
-                distance_x = self.rect.centerx - element.rect.centerx
-                distance_y = self.rect.centery - element.rect.centery
-                distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
-                if distance <= distance_threshold:
-                    plateforme = Plateforme(element.rect.x + 45, 450, element.rect.width, 10, "assets/GROUND.jpg")
-                    self.platforms_invisibles.append(plateforme)
-                    return
-        self.platform_invisible = None
 
     def ouvrir_portes(self, elements_sol_fixes, distance_min=50):
         """
@@ -163,8 +167,8 @@ class Player(pygame.sprite.Sprite):
         for element in elements_sol_fixes:
             if isinstance(element, ElementAuSol):
                 if element.type == "porte":
-                    distance_x = self.rect.centerx - element.rect.centerx
-                    distance_y = self.rect.centery - element.rect.centery
+                    distance_x = self.hitbox.centerx - element.rect.centerx
+                    distance_y = self.hitbox.centery - element.rect.centery
                     distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
                     if distance <= distance_min:
                         element.ouvrir()
@@ -177,7 +181,7 @@ class Player(pygame.sprite.Sprite):
         for element in elements_sol:
             if element.type == "trou":
                 rect_trou = pygame.Rect(element.rect.x, element.rect.y, 50, 50)
-                if self.rect.colliderect(rect_trou):
+                if self.hitbox.colliderect(rect_trou):
                     self.mourir(runtime)
                     return
 
@@ -193,36 +197,31 @@ class Player(pygame.sprite.Sprite):
             screen.blit(self.game_over_image, (150, 150))
 
     def check_platform_collisions_horizontal(self, env):
-        """Vérifie et gère les collisions horizontales avec les plateformes"""
-        for platform in env.platforms:  # On suppose que les plateformes sont accessibles via env.game.platforms
-            if self.rect.colliderect(platform.rect):
-                # Si c'est un escalier, on ne fait rien
+        for platform in env.platforms:
+            if self.hitbox.colliderect(platform.rect):
                 if platform.type == "escalier":
                     continue
 
-                # Si collision, annuler le mouvement horizontal
-                if self.rect.right > platform.rect.left and self.rect.left < platform.rect.left:
-                    self.rect.right = platform.rect.left
-                elif self.rect.left < platform.rect.right and self.rect.right > platform.rect.right:
-                    self.rect.left = platform.rect.right
+                # Si collision, ajuster la hitbox
+                if self.hitbox.right > platform.rect.left and self.hitbox.left < platform.rect.left:
+                    self.hitbox.right = platform.rect.left
+                elif self.hitbox.left < platform.rect.right and self.hitbox.right > platform.rect.right:
+                    self.hitbox.left = platform.rect.right
 
     def check_platform_collisions_vertical(self, env):
-        """Vérifie et gère les collisions verticales avec les plateformes"""
-        self.on_ground = False  # Pour savoir si le joueur est sur le sol ou une plateforme
+        self.on_ground = False
 
-        for platform in env.platforms:  # On suppose que les plateformes sont accessibles via env.game.platforms
-            if self.rect.colliderect(platform.rect):
-
-                # Collision par le haut (le joueur est sur la plateforme)
-                if self.velocity > 0 and self.rect.bottom > platform.rect.top and self.rect.top < platform.rect.top:
-                    self.rect.bottom = platform.rect.top
+        for platform in env.platforms:
+            if self.hitbox.colliderect(platform.rect):
+                # Collision par le haut
+                if self.velocity > 0 and self.hitbox.bottom > platform.rect.top and self.hitbox.top < platform.rect.top:
+                    self.hitbox.bottom = platform.rect.top
                     self.velocity = 0
                     self.on_ground = True
-                # Collision par le bas (le joueur heurte une plateforme en sautant)
-                elif self.velocity < 0 and self.rect.top < platform.rect.bottom and self.rect.bottom > platform.rect.bottom:
-                    # Si la plateforme est un escalier, on ne fait rien
+                # Collision par le bas
+                elif self.velocity < 0 and self.hitbox.top < platform.rect.bottom and self.hitbox.bottom > platform.rect.bottom:
                     if platform.type != "escalier":
-                        self.rect.top = platform.rect.bottom
+                        self.hitbox.top = platform.rect.bottom
                         self.velocity = 0
                     else:
                         self.on_ground = True
@@ -251,16 +250,14 @@ class Player(pygame.sprite.Sprite):
 
         # Déplacement du joueur dans le monde
         if keys[pygame.K_LEFT]:
-            self.rect.x -= self.speed
+            self.hitbox.x -= self.speed  # Déplacer la hitbox
             self.is_walking = True
-            # Forcer l'orientation vers la gauche
             if self.facing_right:
                 self.facing_right = False
                 self.update_player_image()
         if keys[pygame.K_RIGHT]:
-            self.rect.x += self.speed
+            self.hitbox.x += self.speed  # Déplacer la hitbox
             self.is_walking = True
-            # Forcer l'orientation vers la droite
             if not self.facing_right:
                 self.facing_right = True
                 self.update_player_image()
@@ -286,29 +283,21 @@ class Player(pygame.sprite.Sprite):
 
         # Appliquer la gravité
         self.velocity += self.gravity
-        self.rect.y += self.velocity
+        self.hitbox.y += self.velocity
 
         self.check_platform_collisions_vertical(env)
 
-        # Ajout d'une plateforme invisible pour permettre au joueur de rester en haut d'un escalier.
-        # Lorsqu'il est au sommet de l'escalier, cette plateforme invisible lui permet de marcher ou sauter
-        # vers d'autres plateformes sans tomber immédiatement, en le maintenant à une hauteur stable.
-        for plateforme in self.platforms_invisibles:
-            if self.rect.colliderect(plateforme.rect):
-                self.rect.y = plateforme.rect.top
-                self.velocity = 0
-
-        # Collisions avec les limites
-        if self.rect.y > 500:
-            self.rect.y = 500
+        # Limites du monde
+        if self.hitbox.y > 500:
+            self.hitbox.y = 500
             self.velocity = 0
-        if self.rect.y < 0:
-            self.rect.y = 0
+        if self.hitbox.y < 0:
+            self.hitbox.y = 0
             self.velocity = 0
-        if self.rect.x < 0:
-            self.rect.x = 0
-        if self.rect.x > env.width - self.width:
-            self.rect.x = env.width - self.width
+        if self.hitbox.x < 0:
+            self.hitbox.x = 0
+        if self.hitbox.x > env.width - self.width:
+            self.hitbox.x = env.width - self.width
 
         if self.is_shooting:
             if self.shooting_timer > 0:
@@ -326,6 +315,7 @@ class Player(pygame.sprite.Sprite):
 
         # Mettre à jour l'image après avoir géré l'animation de tir
         self.update_player_image()
+        self.update_rect_from_hitbox()
 
         # Mise à jour de la caméra
         camera.update(self)
@@ -346,7 +336,7 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.transform.flip(self.image, True, False)
 
     def jump(self):
-        if self.rect.y == 500 or self.on_ground:
+        if self.hitbox.y == 500 or self.on_ground:
             self.velocity = -self.jump_height
 
     def update_arm_angle(self, camera):
@@ -401,6 +391,11 @@ class Player(pygame.sprite.Sprite):
         surface.blit(self.arm_image, arm_rect_camera)
         for bullet in self.projectile:
             bullet.draw(surface, camera)
+
+        hitbox_temp = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, self.hitbox.height)
+        hitbox_sprite = TempSprite(hitbox_temp)
+        hitbox_camera = camera.apply(hitbox_sprite)
+        pygame.draw.rect(surface, (255, 0, 0), hitbox_camera, 2)  # Rouge avec épaisseur de 2 pixels
 
         x_offset = 20
         y_offset = 20

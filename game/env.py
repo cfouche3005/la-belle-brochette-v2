@@ -73,6 +73,7 @@ class Env:
         for x, y, width, height, platform_type in plateformes_fixes:
             texture = None
             if platform_type == "escalier":
+                print(platform_type)
                 texture = ELEMENT_TEXTUREPATH[platform_type]
             else:
                 # Choix aléatoire de la texture parmi les options disponibles

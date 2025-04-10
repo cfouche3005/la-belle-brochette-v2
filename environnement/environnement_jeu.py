@@ -6,74 +6,98 @@ screen_width = 1280
 screen_height = 720
 screen = pygame.display.set_mode((screen_width, screen_height))
 
-# Coordonnées fixes des plateformes
-# Génerer des plateformes de 30px de large et 30px de haut à la suite ( avec des trous aléatoires)
 
-def generate_platforms():
-    plateformes_fixes = []
-    for i in range(0, 1280*3, 100):
-        if random.random() > 0.2:  # 80% de chance de créer une plateforme
-            plateformes_fixes.append((i, 500, 100, 50, "platform"))
-    return plateformes_fixes
+def generer_niveau_coherent(largeur_totale=3840):  # 1280 * 3 = largeur par défaut
+    # Listes pour stocker les éléments du niveau
+    plateformes = []
+    elements_sol = []
 
-plateformes_fixes = generate_platforms()
-plateformes_fixes.append((40, 400, 50, 50, "escalier") )
+    # Paramètres du niveau
+    hauteur_sol = 500  # Y du premier étage (sol)
+    hauteur_etage2 = 350  # Y du deuxième étage
+    largeur_plateforme = 100
+    hauteur_plateforme = 50
 
-# SAVE:
-# plateformes_fixes = [
-#     (100, 480, 125, 20),
-#     (250, 440, 125, 20),
-#     (40, 400, None, None, "escalier"),
-#     (500, 410, 125, 20),
-#     (750, 380, 125, 20),
-#     (1000, 480, 125, 20),
-#     (1250, 480, 125, 20),
-#     (1450, 450, 125, 20),
-#     (1590, 350, 125, 20),
-#     (3500, 500, 125, 20),
-#     (4000, 250, 150, 20),
-#     (4500, 250, 150, 20),
-#     (5000, 400, 150, 20),
-#     (5500, 250, 150, 20),
-#     (6000, 450, 150, 20),
-# ]
+    # Génération du sol (premier étage) avec des trous
+    x_courant = 0
+    while x_courant < largeur_totale:
+        # Ajout d'une plateforme au sol
+        longueur_section = random.randint(3, 6) * largeur_plateforme  # Sections sol plus courtes
 
+        for i in range(0, longueur_section, largeur_plateforme):
+            if x_courant + i < largeur_totale:
+                plateformes.append((x_courant + i, hauteur_sol, largeur_plateforme, hauteur_plateforme, "platform"))
 
-# Coordonnées fixes des éléments au sol
-elements_sol_fixes = [
-    #(40, 400, "escalier"),
-    (100, 520, "trou"),
-    (250, 430, "porte"),
-    (600, 520, "trou"),
-    (900, 470, "porte"),
-    (1200, 430, "escalier"),
-    (1500, 430, "porte"),
-    (1700, 520, "trou"),
-    (1900, 430, "escalier"),
-    (1000, 430, "crayon"),
-]
-sol_y = 450
+        # Décision d'ajouter un trou ou une section de deuxième étage
+        if random.random() < 0.6:  # 60% de chance d'avoir un trou (au lieu de 70%)
+            taille_trou = random.randint(1, 2) * largeur_plateforme  # Trous plus petits
+            # Ajout d'un trou dans les éléments au sol pour la collision
+            elements_sol.append((x_courant + longueur_section // 2, hauteur_sol + 20, "trou"))
+            x_courant += longueur_section + taille_trou
+        else:
+            # Pas de trou, mais ajout d'une section de deuxième étage
+            x_courant += longueur_section
 
-def generate_powerups(plateformes_fixes):
-    """ Génère des PUs ("chargeur" ou "km") aléatoirement, soit sur les plateformes fixes
-    soit au sol (y = 450).
-    Chaque plateforme a une probabilité de 40% de contenir un PU et
-    la position x du power-up est légèrement décalée aléatoirement pour varier l'apparition.
-    :param plateformes_fixes: Liste de tuples représentant les positions des plateformes (x, y)
-    :return: Liste de tuples (x, y, type_powerup) représentant les power-ups générés
-    """
+    # Génération du deuxième étage avec des escaliers au début
+    x_courant = 100  # Commencer plus tôt
+    while x_courant < largeur_totale - 300:  # Aller plus loin
+        # Décider si on ajoute une section de deuxième étage
+        if random.random() < 0.7:  # 70% de chance d'avoir une section (au lieu de 50%)
+            # Ajouter un escalier au début de la section
+            plateformes.append((x_courant, hauteur_etage2, largeur_plateforme,  hauteur_plateforme, "escalier"))
+
+            # Longueur de la section de deuxième étage
+            longueur_section = random.randint(4, 8) * largeur_plateforme  # Sections plus longues
+
+            x_courant2 = x_courant + largeur_plateforme  # Commencer après l'escalier
+            # Ajouter les plateformes du deuxième étage
+            for i in range(0, longueur_section, largeur_plateforme):
+                plateformes.append((x_courant2 + i, hauteur_etage2, largeur_plateforme, hauteur_plateforme, "platform"))
+
+            # Parfois ajouter une porte ou un autre élément sur le deuxième étage
+            if random.random() < 0.4:  # Plus de chance d'avoir des éléments
+                element_type = random.choice(["porte", "crayon"])
+                elements_sol.append((x_courant + longueur_section // 2, hauteur_etage2 - 20, element_type))
+
+            x_courant += longueur_section + random.randint(1, 3) * largeur_plateforme  # Espacement plus court
+        else:
+            x_courant += random.randint(2, 4) * largeur_plateforme  # Espacement plus court
+
+    # Ajouter quelques power-ups sur les plateformes (inchangé)
     positions_powerups = []
-    for plat in plateformes_fixes:
-        if random.random() < 0.4:
+    for plat in plateformes:
+        if random.random() < 0.15:
             power_up_type = random.choice(["chargeur", "km"])
-            if random.random() < 0.5:
-                power_up_x = plat[0] + random.randint(0, 100)
-                power_up_y = plat[1] - 25
-            else:
-                power_up_x = plat[0] + random.randint(0, 100)
-                power_up_y = 450
+            power_up_x = plat[0] + random.randint(10, 90)
+            power_up_y = plat[1] - 30
             positions_powerups.append((power_up_x, power_up_y, power_up_type))
-    return positions_powerups
+
+    return plateformes, elements_sol, positions_powerups
+
+# Remplacer la génération actuelle par notre nouvelle fonction
+plateformes_fixes, elements_sol_fixes, positions_powerups = generer_niveau_coherent()
+sol_y = 500
+
+# def generate_powerups(plateformes_fixes):
+#     """ Génère des PUs ("chargeur" ou "km") aléatoirement, soit sur les plateformes fixes
+#     soit au sol (y = 450).
+#     Chaque plateforme a une probabilité de 40% de contenir un PU et
+#     la position x du power-up est légèrement décalée aléatoirement pour varier l'apparition.
+#     :param plateformes_fixes: Liste de tuples représentant les positions des plateformes (x, y)
+#     :return: Liste de tuples (x, y, type_powerup) représentant les power-ups générés
+#     """
+#     positions_powerups = []
+#     for plat in plateformes_fixes:
+#         if random.random() < 0.4:
+#             power_up_type = random.choice(["chargeur", "km"])
+#             if random.random() < 0.5:
+#                 power_up_x = plat[0] + random.randint(0, 100)
+#                 power_up_y = plat[1] - 25
+#             else:
+#                 power_up_x = plat[0] + random.randint(0, 100)
+#                 power_up_y = 450
+#             positions_powerups.append((power_up_x, power_up_y, power_up_type))
+#     return positions_powerups
 
 class Plateforme(pygame.sprite.Sprite):
     """Représente une plateforme sur laquelle le joueur peut marcher ou interagir.

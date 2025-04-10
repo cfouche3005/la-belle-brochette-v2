@@ -6,8 +6,7 @@ from game.camera import Camera
 from menu.menu import Menu
 from entities.staticblock import StaticBlock
 from environnement.vie import BarreDeVie
-from environnement.environnement_jeu import Chargeur, Kit_Med
-from environnement.environnement_jeu import generate_powerups, generate_platforms
+from environnement.environnement_jeu import Chargeur, Kit_Med, positions_powerups
 
 class Runtime():
     def __init__(self, window_size):
@@ -28,8 +27,6 @@ class Runtime():
         self.trous = pygame.sprite.Group()
         self.barre_de_vie = BarreDeVie(max_vies=5)
         self.element_group = pygame.sprite.Group()
-        self.plateformes_fixes = generate_platforms()
-        self.generate_and_add_powerups()
         # Plateformes fixes
 
         # Chargement des ressources
@@ -141,10 +138,13 @@ class Runtime():
         # Configuration du joueur
         self.player.set_game_over_image(self.game_over_image)
 
+
+        self.generate_and_add_powerups()
+
     def generate_and_add_powerups(self):
         """ Génère des PUs (chargeur ou kit médical) et les placent sur certaines plateformes"""
-        positions_powerups = generate_powerups(self.plateformes_fixes)
-        for pos in positions_powerups:
+        positions_power_ups = positions_powerups
+        for pos in positions_power_ups:
             x, y, power_up_type = pos
             if power_up_type == "chargeur":
                 self.power_ups.add(Chargeur(x, y))
@@ -169,8 +169,6 @@ class Runtime():
                         self.player.ramasser_chargeur(self.power_ups)
                         self.player.ramasser_km(self.power_ups)
                         self.player.ramasser_crayon(self.env.element_group)
-                    elif event.key == pygame.K_q:
-                        self.player.monter_escaliers(self.env.element_group)
                     elif event.key == pygame.K_e:
                         self.player.ouvrir_portes(self.env.element_group)
                     elif event.key == pygame.K_s:

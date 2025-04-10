@@ -10,7 +10,6 @@ if __name__ == '__main__':
 
     camera = Camera(1280, 720, 1280*2)
     player = Player(100, 150, 50, 50)
-    pu_group = pygame.sprite.Group()
 
     game.setup(player, camera)
     game.run()
