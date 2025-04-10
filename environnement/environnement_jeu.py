@@ -55,7 +55,13 @@ elements_sol_fixes = [
 sol_y = 450
 
 def generate_powerups(plateformes_fixes):
-    """Génère des PUs soit sur le sol ou bien sur les plateformes"""
+    """ Génère des PUs ("chargeur" ou "km") aléatoirement, soit sur les plateformes fixes
+    soit au sol (y = 450).
+    Chaque plateforme a une probabilité de 40% de contenir un PU et
+    la position x du power-up est légèrement décalée aléatoirement pour varier l'apparition.
+    :param plateformes_fixes: Liste de tuples représentant les positions des plateformes (x, y)
+    :return: Liste de tuples (x, y, type_powerup) représentant les power-ups générés
+    """
     positions_powerups = []
     for plat in plateformes_fixes:
         if random.random() < 0.4:
@@ -70,6 +76,8 @@ def generate_powerups(plateformes_fixes):
     return positions_powerups
 
 class Plateforme(pygame.sprite.Sprite):
+    """Représente une plateforme sur laquelle le joueur peut marcher ou interagir.
+    """
     def __init__(self, x, y, width, height, image_path, type_platform: str):
         super().__init__()
         self.width = width
@@ -81,11 +89,13 @@ class Plateforme(pygame.sprite.Sprite):
         self.type = type_platform
 
 class Trottoir(Plateforme):
+    """Sous-classe de Plateforme représentant un trottoir spécifique avec une image par défaut"""
     def __init__(self, x, y, width, height):
         super().__init__(x, y, width, height, "assets/GROUND.jpg")
 
 
 class ElementAuSol(pygame.sprite.Sprite):
+    """Classe générique pour tous les éléments posés au sol que le joueur peut ramasser ou avec lesquels il peut interagir"""
     def __init__(self, x, y, width, height, image_path, type_element: str):
         super().__init__()
         self.width = width
@@ -110,23 +120,28 @@ class ElementAuSol(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (50, 70))
 
 class Porte(ElementAuSol):
+    """Porte que le joueur peut ouvrir avec la fonction ouvrir située dans la classe mère ElementAuSol"""
     def __init__(self, x, y,  type_element):
         super().__init__(x, y, type_element, "assets/porte_noire.png" )
 
 class Escalier(ElementAuSol):
+    """Escalier utilisable par le joueur pour changer de niveau ou de plateforme."""
     def __init__(self, x, y):
         super().__init__(x, y, "assets/escalier_urbain.png")
 
 class Trou(ElementAuSol):
+    """Représente un trou dans lequel le joueur peut potentiellement tomber"""
     def __init__(self, x, y):
         super().__init__(x, y, "assets/trou_sol.png")
 
 class Crayon(ElementAuSol):
+    """arme apparaissant une fois dans le jeu"""
     def __init__(self, x, y):
         super().__init__(x, y, "assets/crayon.png")
 
 
 class PU(pygame.sprite.Sprite):
+    """Classe de base pour les PUs qui donnent un effet (redonner de la vie) ou objet (munitions) au joueur"""
     def __init__(self, x, y_platform, image_path, type_powerup):
         super().__init__()
         self.image = pygame.image.load(image_path).convert_alpha()
@@ -137,10 +152,12 @@ class PU(pygame.sprite.Sprite):
         self.type = type_powerup
 
 class Chargeur(PU):
+    """Power-up spécifique représentant un chargeur de munitions"""
     def __init__(self, x, y_platform ):
         super().__init__(x, y_platform, "assets/munition.png", "chargeur")
 
 class Kit_Med(PU):
+    """Power-up spécifique représentant un kit médical (km)"""
     def __init__(self, x, y_platform):
         super().__init__(x, y_platform, "assets/kit_medical.png", "km")
 
