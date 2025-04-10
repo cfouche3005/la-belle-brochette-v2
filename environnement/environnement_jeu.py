@@ -11,9 +11,9 @@ plateformes_fixes = [
     (500, 410, 125, 20),
     (750, 380, 125, 20),
     (1000, 480, 125, 20),
-    (1250, 440, 125, 20),
-    (1400, 470, 125, 20),
-    (1590, 300, 125, 20),
+    (1250, 480, 125, 20),
+    (1450, 450, 125, 20),
+    (1590, 350, 125, 20),
     (3500, 500, 125, 20),
     (4000, 250, 150, 20),
     (4500, 250, 150, 20),
@@ -25,15 +25,15 @@ plateformes_fixes = [
 # Coordonnées fixes des éléments au sol
 elements_sol_fixes = [
     (40, 500, "escalier"),
-    (250, 500, "trou"),
+    (250, 500, "porte"),
     (600, 500, "porte"),
-    (900, 500, "trou"),
+    (900, 500, "porte"),
     (1200, 500, "escalier"),
     (1500, 500, "porte"),
 ]
 sol_y = 500
 
-positions_powerups = [(100, 500, "km"), (150, 500, "km"),(300, 440, "chargeur"), (4000, 410, "chargeur"), (1050, 480, "km")]
+positions_powerups = [(300, 500, "km"),(300, 440, "chargeur"), (4000, 410, "chargeur"), (1050, 480, "km"), (150, 500, "km")]
 
 class Plateforme(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, image_path):
