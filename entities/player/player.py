@@ -61,6 +61,10 @@ class Player(pygame.sprite.Sprite):
         self.hearts =[]
         self.on_ground = True
         self.arm_angle = 0
+        self.is_shooting = True
+        self.shooting_timer = 0
+        self.shooting_duration = 10
+
 
     def shoot(self, angle, env: Env):
         print("shoot")
@@ -69,6 +73,11 @@ class Player(pygame.sprite.Sprite):
         bullet = Bullet(self.rect.centerx, self.rect.centery, 10, 10, (0,0,0) , angle, env, lambda : self.deleteBullet(bullet))
         self.projectile.append(bullet)
         self.vie = BarreDeVie(5)
+        self.is_shooting = True
+        self.shooting_timer = self.shooting_duration
+
+        # Réinitialiser le cooldown
+        self.cooldown = 15
 
     def deleteBullet(self, bullet):
         """
@@ -238,8 +247,7 @@ class Player(pygame.sprite.Sprite):
         mouse_buttons = pygame.mouse.get_pressed()
         if mouse_buttons[0]:  # Clic gauche
             if self.cooldown == 0:
-                self.shoot(self.arm_angle-90, env)
-                self.cooldown = 5
+                self.shoot(self.arm_angle-90)
 
         # Déplacement du joueur dans le monde
         if keys[pygame.K_LEFT]:
@@ -258,10 +266,6 @@ class Player(pygame.sprite.Sprite):
                 self.update_player_image()
         if keys[pygame.K_UP]:
             self.jump()
-        if keys[pygame.K_f]:
-            if self.cooldown == 0:
-                self.shoot(self.arm_angle, env)
-                self.cooldown = 5
 
         # Gestion de l'animation de marche
         if self.is_walking:
@@ -305,6 +309,23 @@ class Player(pygame.sprite.Sprite):
             self.rect.x = 0
         if self.rect.x > env.width - self.width:
             self.rect.x = env.width - self.width
+
+        if self.is_shooting:
+            if self.shooting_timer > 0:
+                # Utiliser les sprites de tir
+                self.original_image = pygame.image.load("assets/frames/fire/fire(body)_0002.png").convert_alpha()
+                self.arm_original = pygame.transform.rotate(
+                    pygame.image.load("assets/frames/fire/fire(arm)_0002.png").convert_alpha(), -90)
+                self.shooting_timer -= 1
+            else:
+                # Revenir aux sprites normaux
+                self.original_image = pygame.image.load("assets/frames/fire/fire(body)_0001.png").convert_alpha()
+                self.arm_original = pygame.transform.rotate(
+                    pygame.image.load("assets/frames/fire/fire(arm)_0001.png").convert_alpha(), -90)
+                self.is_shooting = False
+
+        # Mettre à jour l'image après avoir géré l'animation de tir
+        self.update_player_image()
 
         # Mise à jour de la caméra
         camera.update(self)
