@@ -66,7 +66,7 @@ class Player(pygame.sprite.Sprite):
         print("shoot")
         print("angle", angle)
         # Implémentation de la logique de tir
-        bullet = Bullet(self.rect.x, self.rect.y, 10, 10, (0,0,0) , angle)
+        bullet = Bullet(self.rect.centerx, self.rect.centery, 10, 10, (0,0,0) , angle)
         self.projectile.append(bullet)
         self.vie = BarreDeVie(5)
 
@@ -223,6 +223,13 @@ class Player(pygame.sprite.Sprite):
         self.is_walking = False
         keys = pygame.key.get_pressed()
 
+        # Vérification des clics de souris
+        mouse_buttons = pygame.mouse.get_pressed()
+        if mouse_buttons[0]:  # Clic gauche
+            if self.cooldown == 0:
+                self.shoot(self.arm_angle-90)
+                self.cooldown = 5
+
         # Déplacement du joueur dans le monde
         if keys[pygame.K_LEFT]:
             self.rect.x -= self.speed
@@ -242,7 +249,7 @@ class Player(pygame.sprite.Sprite):
             self.jump()
         if keys[pygame.K_f]:
             if self.cooldown == 0:
-                self.shoot(45)
+                self.shoot(self.arm_angle)
                 self.cooldown = 5
 
         # Gestion de l'animation de marche
@@ -294,7 +301,7 @@ class Player(pygame.sprite.Sprite):
             self.cooldown -= 1
 
         # Mise à jour de l'angle du bras en fonction de la position de la souris
-        self.update_arm_angle()
+        self.update_arm_angle(camera)
 
     def update_player_image(self):
         """Met à jour l'image du joueur en fonction de l'animation et de l'orientation"""
@@ -310,45 +317,43 @@ class Player(pygame.sprite.Sprite):
         if self.rect.y == 500 or self.on_ground:
             self.velocity = -self.jump_height
 
-    def update_arm_angle(self):
-        # Obtenir la position de la souris
+    def update_arm_angle(self, camera):
+        # Obtenir la position de la souris (en coordonnées d'écran)
         mouse_pos = pygame.mouse.get_pos()
 
-        # Calculer la position du point de pivot dans les coordonnées de l'écran
-        pivot_screen_pos = (self.rect.x + self.pivot[0], self.rect.y + self.pivot[1])
+        # Créer un objet temporaire avec la position du point de pivot
+        pivot_world_pos = pygame.Rect(self.rect.x + self.pivot[0], self.rect.y + self.pivot[1], 1, 1)
+        temp_sprite = TempSprite(pivot_world_pos)
+
+        # Appliquer la caméra pour obtenir la position à l'écran
+        pivot_screen_pos = camera.apply(temp_sprite)
 
         # Calculer l'angle entre le point de pivot et la position de la souris
-        d_pos = pygame.Vector2(mouse_pos[0] - pivot_screen_pos[0], mouse_pos[1] - pivot_screen_pos[1])
-        self.arm_angle = math.degrees(math.atan2(d_pos[0], d_pos[1]))  # Angle en degrés
+        d_pos = pygame.Vector2(mouse_pos[0] - pivot_screen_pos.x,
+                               mouse_pos[1] - pivot_screen_pos.y)
+        self.arm_angle = math.degrees(math.atan2(d_pos[0], d_pos[1]))
 
-        # Changer l'orientation du personnage en fonction de l'angle du bras
+        # Orientation du joueur en fonction de l'angle du bras
         should_face_right = -0 <= self.arm_angle <= 180
 
-        # Si l'orientation doit changer, on tourne le personnage
         if should_face_right != self.facing_right:
             self.facing_right = should_face_right
             self.update_player_image()
 
-        # Utiliser l'image du bras originale et l'adapter selon l'orientation
+        # Rotation du bras
         arm_to_rotate = self.arm_original.copy()
-
-        # Retourner le bras horizontalement si le personnage regarde à gauche
         if not self.facing_right:
             arm_to_rotate = pygame.transform.flip(arm_to_rotate, True, False)
-
-        # Appliquer la rotation au bras selon l'angle calculé
         rotated_arm = pygame.transform.rotate(arm_to_rotate, self.arm_angle)
 
-        # Calculer l'offset après rotation
-        origin_rect = self.arm_original.get_rect(center=(pivot_screen_pos[0], pivot_screen_pos[1]))
-        rotated_rect = rotated_arm.get_rect()
+        # Positionnement du bras dans le monde, pas à l'écran
+        # On stocke dans arm_rect les coordonnées du monde, pas de l'écran
+        self.arm_rect = rotated_arm.get_rect()
 
-        # Centrer l'image rotative sur le point de pivot
-        rotated_rect.center = origin_rect.center
+        # Le bras doit être attaché au joueur dans le monde, pas à l'écran
+        self.arm_rect.center = (self.rect.x + self.pivot[0], self.rect.y + self.pivot[1])
 
-        # Mise à jour de l'image et du rectangle du bras
         self.arm_image = rotated_arm
-        self.arm_rect = rotated_rect
 
     def draw(self, surface, camera):
         """
@@ -359,6 +364,9 @@ class Player(pygame.sprite.Sprite):
         # Dessin de l'entité avec le décalage de la caméra
         rect_camera = camera.apply(self)
         surface.blit(self.image, rect_camera)
+        temp_sprite = TempSprite(self.arm_rect)
+        arm_rect_camera = camera.apply(temp_sprite)
+        surface.blit(self.arm_image, arm_rect_camera)
         for bullet in self.projectile:
             bullet.draw(surface, camera)
 
@@ -371,5 +379,7 @@ class Player(pygame.sprite.Sprite):
                 empty_heart = pygame.Surface((30, 30), pygame.SRCALPHA) #"couleur transparente"
                 surface.blit(empty_heart, (x_offset + i * 45, y_offset))  # Afficher le coeur vide avec la couleur invisible
 
-        # Dessiner le bras pivoté
-        surface.blit(self.arm_image, self.arm_rect)
+# Solution 2: Créer un sprite temporaire
+class TempSprite:
+    def __init__(self, rect):
+        self.rect = rect
