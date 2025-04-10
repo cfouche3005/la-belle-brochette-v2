@@ -20,6 +20,14 @@ class Inventaire:
         if type_objet in self.objets:
             self.objets[type_objet] += 1
 
+    def retirer(self, type_objet):
+        if self.possede(type_objet):
+            self.objets[type_objet] -= 1
+
+    def possede(self, type_objet):
+        """Vérifie si le joueur possède un objet spécifique"""
+        return type_objet in self.objets and self.objets[type_objet] > 0
+
     def draw(self, screen):
         """
         Dessiner en haut à droite de l'écran, les différents PU qui sont ramassés par le joueur au cours de la partie

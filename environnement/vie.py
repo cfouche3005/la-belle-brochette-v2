@@ -17,7 +17,6 @@ class BarreDeVie:
         if self.vies < 0:
             self.vies = 0
 
-
     def draw(self, screen):
         for i in range(self.vies):
             screen.blit(self.coeur_image, (self.x + i * 45, self.y))

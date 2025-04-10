@@ -6,15 +6,15 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 
 # Coordonnées fixes des plateformes
 plateformes_fixes = [
-    (100, 200, 150, 20),
-    (250, 200, 150, 20),
-    (400, 200, 150, 20),
-    (590, 200, 150, 20),
-    (1000, 200, 150, 20),
-    (1250, 300, 150, 20),
-    (1400, 300, 150, 20),
-    (1590, 300, 150, 20),
-    (3500, 500, 150, 20),
+    (100, 480, 125, 20),
+    (250, 440, 125, 20),
+    (500, 410, 125, 20),
+    (750, 380, 125, 20),
+    (1000, 480, 125, 20),
+    (1250, 440, 125, 20),
+    (1400, 470, 125, 20),
+    (1590, 300, 125, 20),
+    (3500, 500, 125, 20),
     (4000, 250, 150, 20),
     (4500, 250, 150, 20),
     (5000, 400, 150, 20),
@@ -24,15 +24,16 @@ plateformes_fixes = [
 
 # Coordonnées fixes des éléments au sol
 elements_sol_fixes = [
-    (100, 500, "crayon"),
-    (500, 500, "escalier"),
-    (700, 500, "trou"),
-    (1000, 500, "escalier"),
-    (1200, 500, "porte"),
+    (40, 500, "escalier"),
+    (250, 500, "trou"),
+    (600, 500, "porte"),
+    (900, 500, "trou"),
+    (1200, 500, "escalier"),
+    (1500, 500, "porte"),
 ]
 sol_y = 500
 
-positions_powerups = [(100, 500, "chargeur"), (400, 500, "chargeur"), (60, 500, "km")]
+positions_powerups = [(100, 500, "km"), (150, 500, "km"),(300, 440, "chargeur"), (4000, 410, "chargeur"), (1050, 480, "km")]
 
 class Plateforme(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, image_path):
@@ -58,7 +59,7 @@ class ElementAuSol(pygame.sprite.Sprite):
         self.width = width
         self.height = height
         self.image = pygame.image.load(image_path).convert_alpha()
-        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.image = pygame.transform.scale(self.image, (60, 50))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.type = type_element #Aide de GPT qui a indiqué qu'il fallait ajouter le .type dans la fonction

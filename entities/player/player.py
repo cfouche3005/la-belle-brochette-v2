@@ -20,9 +20,11 @@ class Player(pygame.sprite.Sprite):
         self.jump_height = 10
         self.gravity = 0.5
         self.velocity = 0
-        self.vie = BarreDeVie(5)
-        self.platform_invisible = None
+        self.vie = BarreDeVie(3)
+        self.platforms_invisibles = []
         self.inventaire = Inventaire()
+        self.coeur_image =  pygame.transform.scale(pygame.image.load("assets/COEUR_PA.png"), (50, 50))
+        self.hearts =[]
 
     #aide de GPT pour le l'utilisation de ".type", mais aussi pour les fonctions monter_escalier pour la plateforme invisible
     # et ouvrir_porte pour le "if isinstance(element, ElementAuSol):"
@@ -55,6 +57,7 @@ class Player(pygame.sprite.Sprite):
                     power_ups.remove(pu)
                     self.inventaire.ajouter("km")
                     return
+
     def ramasser_crayon(self, elements_sol, distance_threshold=50):
         """
         Fonction pour ramasser le crayon si le joueur est à une certaine distance.
@@ -82,8 +85,8 @@ class Player(pygame.sprite.Sprite):
                 distance_y = self.rect.centery - element.rect.centery
                 distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
                 if distance <= distance_threshold:
-                    self.platform_invisible = Plateforme(element.rect.x + 45, 450, element.rect.width, 10,
-                                                         "assets/GROUND.jpg")
+                    plateforme = Plateforme(element.rect.x + 45, 450, element.rect.width, 10, "assets/GROUND.jpg")
+                    self.platforms_invisibles.append(plateforme)
                     return
         self.platform_invisible = None
 
@@ -124,6 +127,10 @@ class Player(pygame.sprite.Sprite):
             screen = pygame.display.get_surface()
             screen.blit(self.game_over_image, (150, 150))
 
+    def gagner_vie(self):
+        if len(self.hearts) < self.vie.vies:
+            self.hearts.append(self.coeur_image)
+
     def mourir(self, runtime):
         """
         Fait mourir le joueur et réinitialise sa barre de vie à 0
@@ -149,9 +156,10 @@ class Player(pygame.sprite.Sprite):
         # Ajout d'une plateforme invisible pour permettre au joueur de rester en haut d'un escalier.
         # Lorsqu'il est au sommet de l'escalier, cette plateforme invisible lui permet de marcher ou sauter
         # vers d'autres plateformes sans tomber immédiatement, en le maintenant à une hauteur stable.
-        if self.platform_invisible and self.rect.colliderect(self.platform_invisible.rect):
-            self.rect.y = self.platform_invisible.rect.top
-            self.velocity = 0
+        for plateforme in self.platforms_invisibles:
+            if self.rect.colliderect(plateforme.rect):
+                self.rect.y = plateforme.rect.top
+                self.velocity = 0
 
         # Collisions avec les limites
         if self.rect.y > 500:
@@ -174,6 +182,20 @@ class Player(pygame.sprite.Sprite):
             self.velocity = -self.jump_height
 
     def draw(self, surface, camera):
+        """
+        Ajouter de la vie au personnage s'il a un kit dans son inventaire.
+        Reprise de l'affichage des vies utilisé dans la classe BarreDeVie
+        Les vies seront ajoutées aux endroits où il y a un vide (aide de GPT pour ceci)
+        """
         # Dessin de l'entité avec le décalage de la caméra
         rect_camera = camera.apply(self)
         surface.blit(self.image, rect_camera)
+
+        x_offset = 20
+        y_offset = 20
+        for i in range(5):
+            if i < self.vie.vies:
+                surface.blit(self.coeur_image, (x_offset + i * 45, y_offset))
+            else:
+                empty_heart = pygame.Surface((30, 30), pygame.SRCALPHA) #"couleur transparente"
+                surface.blit(empty_heart, (x_offset + i * 45, y_offset))  # Afficher le coeur vide avec la couleur invisible

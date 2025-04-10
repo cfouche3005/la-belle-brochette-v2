@@ -112,7 +112,7 @@ class Runtime():
         self.enemies = ...
         self.trous = pygame.sprite.Group()
         self.player.set_game_over_image(self.game_over_image)
-        self.barre_de_vie = BarreDeVie(5)
+        self.barre_de_vie = BarreDeVie(3)
 
         self.env = env
         self.camera = camera
@@ -167,6 +167,12 @@ class Runtime():
                         self.player.monter_escaliers(self.element_group)
                     elif event.key == pygame.K_e:
                         self.player.ouvrir_portes(self.element_group)
+                    elif event.key == pygame.K_s:
+                        if self.player.vie.vies < 5 and self.player.inventaire.possede("km"):
+                            self.player.vie.vies += 1  # Augmente les vies du joueur
+                            self.player.gagner_vie()  # Ajoute un coeur
+                            self.player.inventaire.retirer("km")  # Retire un KM
+                            print("KM utilisé ! Vie restante :", self.player.vie.vies)
 
             self.screen.fill("black")
 
@@ -195,7 +201,7 @@ class Runtime():
 
                     # Si la vie est à 0, afficher l'image de Game Over
                     if self.player.vie.vies <= 0 and self.gameState == "gameover":
-                        self.player.afficher_game_over(self)
+                        self.player.afficher_game_over()
                         pygame.display.update()
                         pygame.time.delay(2000)
                         self.changeGameState("menu")
