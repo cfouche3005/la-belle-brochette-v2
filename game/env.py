@@ -60,7 +60,7 @@ class Env:
             x = random.randint(platform.rect.left, platform.rect.right - 30)
             y = platform.rect.top
 
-            enemy = Enemy(x, y)
+            enemy = Enemy(x, y, 30, 30, self.screen, self.camera)
             enemy.current_platform = platform
             self.enemies.add(enemy)
     def loadbackground(self):
@@ -109,12 +109,12 @@ class Env:
         for power_up in self.power_ups:
             self.screen.blit(power_up.image, self.camera.apply(power_up))
         for enemy in self.enemies:
-            self.screen.blit(enemy.image, self.camera.apply(enemy))
+            enemy.draw()
 
-    def update(self):
+    def update(self, player):
         """Met à jour l'état des ennemis"""
         for enemy in self.enemies:
-            enemy.update(self.platforms)
+            enemy.update(self.platforms, player, self)
     def checkCollisionWithEnnemy(self, rect: pygame.Rect):
         """
         Check if the rect collides with any enemy
