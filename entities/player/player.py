@@ -11,6 +11,14 @@ from environnement.inventaire import Inventaire
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, game_over_cb = None):
+        """
+        Initialise le joueur
+        :param x: Origin x du joueur
+        :param y: Origin y du joueur
+        :param width: Largeur du joueur
+        :param height: Hauteur du joueur
+        :param game_over_cb: Fonction de rappel pour le game over
+        """
         super().__init__()
         self.projectile = []
         self.cooldown = 0
@@ -97,6 +105,12 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = self.hitbox.y - (self.rect.height + offset_y)
 
     def shoot(self, angle, env: Env):
+        """
+        Fonction pour tirer une balle
+        :param angle: Angle de tir
+        :param env: Instance de l'environnement pour la gestion des projectiles
+        :return:
+        """
         print("shoot")
         print("angle", angle)
         # Implémentation de la logique de tir
@@ -111,6 +125,7 @@ class Player(pygame.sprite.Sprite):
     def deleteBullet(self, bullet):
         """
         Fonction pour supprimer une balle de la liste des projectiles
+        :param bullet: Balle à supprimer
         """
         if bullet in self.projectile:
             self.projectile.remove(bullet)
@@ -124,6 +139,8 @@ class Player(pygame.sprite.Sprite):
         Fonction pour ramasser le power-up chargeur si le joueur est à une certaine distance.
         Si un PU est ramassé, il est supprimé de la liste des power-ups.
         Aide de GPT pour l'utilisation de ".type"
+        :param power_ups: Liste des power-ups
+        :param distance_min: Distance minimale pour ramasser le PU
         """
         for pu in power_ups:
             if pu.type == "chargeur":
@@ -139,6 +156,8 @@ class Player(pygame.sprite.Sprite):
         """
         Fonction pour ramasser le power-up KM si le joueur est à une certaine distance.
         Si un PU est ramassé, il est supprimé de la liste des power-ups.
+        :param power_ups: Liste des power-ups
+        :param distance_threshold: Distance minimale pour ramasser le PU
         """
         for pu in power_ups:
             if pu.type == "km":
@@ -154,6 +173,8 @@ class Player(pygame.sprite.Sprite):
         """
         Fonction pour ramasser le crayon si le joueur est à une certaine distance.
         Si un crayon est ramassé, il est supprimé de la liste des éléments au sol.
+        :param elements_sol: Liste des éléments au sol
+        :param distance_min: Distance minimale pour ramasser le crayon
         """
         for element in elements_sol:
             if element.type == "crayon":
@@ -172,6 +193,8 @@ class Player(pygame.sprite.Sprite):
         Aide de GPT pour "if isinstance(element, ElementAuSol):" car problème au niveau de l'état (fermé ou ouvert)
         lorsqu'il était placé dans la classe Porte(ElementAuSol). Pour éviter les erreurs, l'état a été placé dans la classe
         mère ElementAuSol
+        :param elements_sol_fixes: Liste des éléments au sol fixes
+        :param distance_min: Distance minimale pour ouvrir la porte
         """
         for element in elements_sol_fixes:
             if isinstance(element, ElementAuSol):
@@ -186,6 +209,8 @@ class Player(pygame.sprite.Sprite):
     def check_trou_collision(self, elements_sol, runtime):
         """
         Vérifier si le joueur est tombé dans un trou, si c'est le cas il meurt directement
+        :param elements_sol: Liste des éléments au sol
+        :param runtime: Instance de l'environnement pour la gestion des projectiles
         """
         for element in elements_sol:
             if element.type == "trou":
@@ -193,9 +218,6 @@ class Player(pygame.sprite.Sprite):
                 if self.hitbox.colliderect(rect_trou):
                     self.mourir(runtime)
                     return
-
-    def set_game_over_image(self, image):
-        self.game_over_image = image
 
     def afficher_game_over(self):
         """
@@ -206,6 +228,11 @@ class Player(pygame.sprite.Sprite):
             screen.blit(self.game_over_image, (150, 150))
 
     def check_platform_collisions_horizontal(self, env):
+        """
+        Vérifie les collisions horizontales avec les plateformes
+        :param env:  Instance de l'environnement pour la gestion des plateformes
+        :return:
+        """
         for platform in env.platforms:
             if self.hitbox.colliderect(platform.rect):
                 if platform.type == "escalier":
@@ -218,6 +245,8 @@ class Player(pygame.sprite.Sprite):
                     self.hitbox.left = platform.rect.right
 
     def check_platform_collisions_vertical(self, env):
+        """Vérifie les collisions verticales avec les plateformes
+        :param env: Instance de l'environnement pour la gestion des plateformes"""
         self.on_ground = False
 
         for platform in env.platforms:
@@ -236,17 +265,25 @@ class Player(pygame.sprite.Sprite):
                         self.on_ground = True
 
     def gagner_vie(self):
+        """Ajoute une vie au joueur"""
         if len(self.hearts) < self.vie.vies:
             self.hearts.append(self.coeur_image)
 
     def mourir(self, runtime):
         """
         Fait mourir le joueur et réinitialise sa barre de vie à 0
+        :param runtime: Instance de l'environnement pour la gestion des plateformes
         """
         self.vie.vies = 0
         runtime.changeGameState("gameover")
 
     def update(self, env: Env, camera: Camera):
+        """
+        Met à jour la position du joueur, gère les entrées clavier et les animations
+        :param env: Instance de l'environnement pour la gestion des plateformes
+        :param camera: Instance de la caméra pour le défilement
+        :return:
+        """
         # Réinitialisation de l'état de marche
         self.is_walking = False
         keys = pygame.key.get_pressed()
@@ -357,10 +394,19 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.transform.flip(self.image, True, False)
 
     def jump(self):
+        """
+        Fonction pour faire sauter le joueur
+        :return:
+        """
         if self.hitbox.y == 500 or self.on_ground:
             self.velocity = -self.jump_height
 
     def update_arm_angle(self, camera):
+        """
+        Met à jour l'angle du bras en fonction de la position de la souris
+        :param camera:
+        :return:
+        """
         # Obtenir la position de la souris (en coordonnées d'écran)
         mouse_pos = pygame.mouse.get_pos()
 
@@ -403,6 +449,8 @@ class Player(pygame.sprite.Sprite):
         Ajouter de la vie au personnage s'il a un kit dans son inventaire.
         Reprise de l'affichage des vies utilisé dans la classe BarreDeVie
         Les vies seront ajoutées aux endroits où il y a un vide (aide de GPT pour ceci)
+        :param surface: Surface sur laquelle dessiner le joueur
+        :param camera: Instance de la caméra pour le défilement
         """
         # Dessin de l'entité avec le décalage de la caméra
         rect_camera = camera.apply(self)
