@@ -10,7 +10,7 @@ from environnement.environnement_jeu import Plateforme, ElementAuSol
 from environnement.inventaire import Inventaire
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, width, height, game_over_cb = None):
         super().__init__()
         self.projectile = []
         self.cooldown = 0
@@ -49,6 +49,10 @@ class Player(pygame.sprite.Sprite):
         self.animation_timer = 0
         self.is_walking = False
 
+        print("Callback de la fonction game_over_cb")
+        print(game_over_cb)
+        self.gameOverCb = game_over_cb
+
         # Chargement de l'image du bras
         self.arm_image = pygame.transform.rotate(
             pygame.image.load("assets/frames/fire/fire(arm)_0001.png").convert_alpha(), -90)
@@ -67,7 +71,7 @@ class Player(pygame.sprite.Sprite):
         self.jump_height = 10
         self.gravity = 0.5
         self.velocity = 0
-        self.vie = BarreDeVie(5)
+        self.vie = BarreDeVie(5, lambda: self.callGameOver())
         self.platforms_invisibles = []
         self.inventaire = Inventaire()
         self.coeur_image = pygame.transform.scale(pygame.image.load("assets/COEUR_PA.png"), (50, 50))
@@ -77,6 +81,12 @@ class Player(pygame.sprite.Sprite):
         self.is_shooting = True
         self.shooting_timer = 0
         self.shooting_duration = 10
+    def callGameOver(self):
+        """
+        Fonction pour appeler le game over
+        """
+        if self.gameOverCb:
+            self.gameOverCb()
 
     def update_rect_from_hitbox(self):
         """Mise à jour du rect d'affichage en fonction de la hitbox"""
@@ -90,9 +100,8 @@ class Player(pygame.sprite.Sprite):
         print("shoot")
         print("angle", angle)
         # Implémentation de la logique de tir
-        bullet = Bullet(self.rect.centerx, self.rect.centery, 10, 10, (0,0,0) , angle, env, lambda : self.deleteBullet(bullet))
+        bullet = Bullet(self.rect.left, self.rect.centery, 10, 10, (0,0,0) , angle, env, lambda : self.deleteBullet(bullet))
         self.projectile.append(bullet)
-        self.vie = BarreDeVie(5)
         self.is_shooting = True
         self.shooting_timer = self.shooting_duration
 
