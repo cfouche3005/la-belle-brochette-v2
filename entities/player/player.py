@@ -13,8 +13,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, game_over_cb = None):
         """
         Initialise le joueur
-        :param x: Origin x du joueur
-        :param y: Origin y du joueur
+        :param x: Origine x du joueur
+        :param y: Origine y du joueur
         :param width: Largeur du joueur
         :param height: Hauteur du joueur
         :param game_over_cb: Fonction de rappel pour le game over
@@ -89,6 +89,7 @@ class Player(pygame.sprite.Sprite):
         self.is_shooting = True
         self.shooting_timer = 0
         self.shooting_duration = 10
+
     def callGameOver(self):
         """
         Fonction pour appeler le game over
@@ -114,7 +115,7 @@ class Player(pygame.sprite.Sprite):
         print("shoot")
         print("angle", angle)
         # Implémentation de la logique de tir
-        bullet = Bullet(self.rect.left, self.rect.centery, 10, 10, (0,0,0) , angle, env, lambda : self.deleteBullet(bullet))
+        bullet = Bullet(self.rect.centerx, self.rect.centery, 10, 10, (0,0,0) , angle, env, lambda : self.deleteBullet(bullet))
         self.projectile.append(bullet)
         self.is_shooting = True
         self.shooting_timer = self.shooting_duration
@@ -138,7 +139,6 @@ class Player(pygame.sprite.Sprite):
         """
         Fonction pour ramasser le power-up chargeur si le joueur est à une certaine distance.
         Si un PU est ramassé, il est supprimé de la liste des power-ups.
-        Aide de GPT pour l'utilisation de ".type"
         :param power_ups: Liste des power-ups
         :param distance_min: Distance minimale pour ramasser le PU
         """
@@ -197,7 +197,7 @@ class Player(pygame.sprite.Sprite):
         :param distance_min: Distance minimale pour ouvrir la porte
         """
         for element in elements_sol_fixes:
-            if isinstance(element, ElementAuSol):
+            if isinstance(element, ElementAuSol): #vérifie si l'élément fait partie de la classe ElementAuSol
                 if element.type == "porte":
                     distance_x = self.hitbox.centerx - element.rect.centerx
                     distance_y = self.hitbox.centery - element.rect.centery
@@ -405,7 +405,7 @@ class Player(pygame.sprite.Sprite):
         """
         Met à jour l'angle du bras en fonction de la position de la souris
         :param camera:
-        :return:
+        Fait avec GPT mais retravaillé car GPt est mauvais dans les calculs mathématiques
         """
         # Obtenir la position de la souris (en coordonnées d'écran)
         mouse_pos = pygame.mouse.get_pos()
@@ -461,10 +461,10 @@ class Player(pygame.sprite.Sprite):
         for bullet in self.projectile:
             bullet.draw(surface, camera)
 
-        hitbox_temp = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, self.hitbox.height)
-        hitbox_sprite = TempSprite(hitbox_temp)
-        hitbox_camera = camera.apply(hitbox_sprite)
-        pygame.draw.rect(surface, (255, 0, 0), hitbox_camera, 2)  # Rouge avec épaisseur de 2 pixels
+        #hitbox_temp = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, self.hitbox.height)
+        #hitbox_sprite = TempSprite(hitbox_temp)
+        #hitbox_camera = camera.apply(hitbox_sprite)
+        #pygame.draw.rect(surface, (255, 0, 0), hitbox_camera, 2)  # Rouge avec épaisseur de 2 pixels
 
         x_offset = 20
         y_offset = 20
@@ -475,7 +475,6 @@ class Player(pygame.sprite.Sprite):
                 empty_heart = pygame.Surface((30, 30), pygame.SRCALPHA) #"couleur transparente"
                 surface.blit(empty_heart, (x_offset + i * 45, y_offset))  # Afficher le coeur vide avec la couleur invisible
 
-# Solution 2: Créer un sprite temporaire
 class TempSprite:
     def __init__(self, rect):
         self.rect = rect
