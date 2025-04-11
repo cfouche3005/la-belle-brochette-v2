@@ -461,10 +461,10 @@ class Player(pygame.sprite.Sprite):
         for bullet in self.projectile:
             bullet.draw(surface, camera)
 
-        hitbox_temp = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, self.hitbox.height)
-        hitbox_sprite = TempSprite(hitbox_temp)
-        hitbox_camera = camera.apply(hitbox_sprite)
-        pygame.draw.rect(surface, (255, 0, 0), hitbox_camera, 2)  # Rouge avec épaisseur de 2 pixels
+        #hitbox_temp = pygame.Rect(self.hitbox.x, self.hitbox.y, self.hitbox.width, self.hitbox.height)
+        #hitbox_sprite = TempSprite(hitbox_temp)
+        #hitbox_camera = camera.apply(hitbox_sprite)
+        #pygame.draw.rect(surface, (255, 0, 0), hitbox_camera, 2)  # Rouge avec épaisseur de 2 pixels
 
         x_offset = 20
         y_offset = 20
