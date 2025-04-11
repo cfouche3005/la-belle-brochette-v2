@@ -73,7 +73,7 @@ def generer_niveau_coherent(largeur_totale=3840):  # 1280 * 3 = largeur par déf
     for plat in plateformes:
         rand = random.random()
         print(rand)
-        if rand < 1:
+        if rand < 0.5:
             power_up_type = random.choice(["chargeur", "km"])
             power_up_x = plat[0] + random.randint(10, 90)
             power_up_y = plat[1] - 30
@@ -84,27 +84,6 @@ def generer_niveau_coherent(largeur_totale=3840):  # 1280 * 3 = largeur par déf
 # Remplacer la génération actuelle par notre nouvelle fonction
 plateformes_fixes, elements_sol_fixes, positions_powerups = generer_niveau_coherent()
 sol_y = 500
-
-# def generate_powerups(plateformes_fixes):
-#     """ Génère des PUs ("chargeur" ou "km") aléatoirement, soit sur les plateformes fixes
-#     soit au sol (y = 450).
-#     Chaque plateforme a une probabilité de 40% de contenir un PU et
-#     la position x du power-up est légèrement décalée aléatoirement pour varier l'apparition.
-#     :param plateformes_fixes: Liste de tuples représentant les positions des plateformes (x, y)
-#     :return: Liste de tuples (x, y, type_powerup) représentant les power-ups générés
-#     """
-#     positions_powerups = []
-#     for plat in plateformes_fixes:
-#         if random.random() < 0.4:
-#             power_up_type = random.choice(["chargeur", "km"])
-#             if random.random() < 0.5:
-#                 power_up_x = plat[0] + random.randint(0, 100)
-#                 power_up_y = plat[1] - 25
-#             else:
-#                 power_up_x = plat[0] + random.randint(0, 100)
-#                 power_up_y = 450
-#             positions_powerups.append((power_up_x, power_up_y, power_up_type))
-#     return positions_powerups
 
 class Plateforme(pygame.sprite.Sprite):
     """Représente une plateforme sur laquelle le joueur peut marcher ou interagir.

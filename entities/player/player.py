@@ -13,8 +13,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, game_over_cb = None):
         """
         Initialise le joueur
-        :param x: Origin x du joueur
-        :param y: Origin y du joueur
+        :param x: Origine x du joueur
+        :param y: Origine y du joueur
         :param width: Largeur du joueur
         :param height: Hauteur du joueur
         :param game_over_cb: Fonction de rappel pour le game over
