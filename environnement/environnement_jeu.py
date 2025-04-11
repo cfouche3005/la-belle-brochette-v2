@@ -8,6 +8,11 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 
 
 def generer_niveau_coherent(largeur_totale=3840):  # 1280 * 3 = largeur par défaut
+    """
+    Génère un niveau de jeu avec des plateformes, des éléments au sol et des power-ups.
+    :param largeur_totale: Largeur totale du niveau
+    :return:
+    """
     # Listes pour stocker les éléments du niveau
     plateformes = []
     elements_sol = []
@@ -105,6 +110,15 @@ class Plateforme(pygame.sprite.Sprite):
     """Représente une plateforme sur laquelle le joueur peut marcher ou interagir.
     """
     def __init__(self, x, y, width, height, image_path, type_platform: str):
+        """
+        Initialise la plateforme avec une image, une position et un type.
+        :param x: Position x de la plateforme
+        :param y: Position y de la plateforme
+        :param width: Largeur de la plateforme
+        :param height: Hauteur de la plateforme
+        :param image_path: Chemin de l'image de la plateforme
+        :param type_platform: Type de la plateforme (escalier, sol, etc.)
+        """
         super().__init__()
         self.width = width
         self.height = height
@@ -123,6 +137,15 @@ class Trottoir(Plateforme):
 class ElementAuSol(pygame.sprite.Sprite):
     """Classe générique pour tous les éléments posés au sol que le joueur peut ramasser ou avec lesquels il peut interagir"""
     def __init__(self, x, y, width, height, image_path, type_element: str):
+        """
+        Initialise l'élément au sol avec une image, une position et un type.
+        :param x: Position x de l'élément
+        :param y: Position y de l'élément
+        :param width: Largeur de l'élément
+        :param height: Hauteur de l'élément
+        :param image_path: Chemin de l'image de l'élément
+        :param type_element: Type de l'élément (porte, escalier, etc.)
+        """
         super().__init__()
         self.width = width
         self.height = height
