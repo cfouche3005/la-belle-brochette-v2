@@ -114,7 +114,7 @@ class Player(pygame.sprite.Sprite):
         print("shoot")
         print("angle", angle)
         # Implémentation de la logique de tir
-        bullet = Bullet(self.rect.left, self.rect.centery, 10, 10, (0,0,0) , angle, env, lambda : self.deleteBullet(bullet))
+        bullet = Bullet(self.rect.centerx, self.rect.centery, 10, 10, (0,0,0) , angle, env, lambda : self.deleteBullet(bullet))
         self.projectile.append(bullet)
         self.is_shooting = True
         self.shooting_timer = self.shooting_duration
@@ -475,7 +475,6 @@ class Player(pygame.sprite.Sprite):
                 empty_heart = pygame.Surface((30, 30), pygame.SRCALPHA) #"couleur transparente"
                 surface.blit(empty_heart, (x_offset + i * 45, y_offset))  # Afficher le coeur vide avec la couleur invisible
 
-# Solution 2: Créer un sprite temporaire
 class TempSprite:
     def __init__(self, rect):
         self.rect = rect
