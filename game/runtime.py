@@ -194,6 +194,7 @@ class Runtime():
         self.player = Player(100, 150, 50, 50, lambda: self.changeGameState("gameover"))
         self.camera = Camera(self.wi, self.he, self.wi * 2)
         self.env = Env(self.wi, self.he, "assets/bg.jpeg", self.screen, self.camera)
+
     def reset(self):
         """Réinitialise le jeu."""
         self.setup()

@@ -50,6 +50,7 @@ class Inventaire:
         Dessiner en haut à droite de l'écran, les différents PU qui sont ramassés par le joueur au cours de la partie
         Aide de GPT pour cette fonction
         :param screen: l'écran sur lequel dessiner l'inventaire
+        Aide de GPT pour cette fonction
         """
         screen_width = screen.get_width()
         x, y = screen_width - 150, 10
