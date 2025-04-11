@@ -19,6 +19,10 @@ class Enemy(pygame.sprite.Sprite):
         self.image = pygame.Surface((width, height))
         self.image.fill((0, 0, 255))  # Carré bleu
         self.rect = self.image.get_rect()
+        self.textureSurface = pygame.Surface((width, height))
+        self.texture = self.textureSurface.get_rect()
+        self.texture.x = x
+        self.texture.y = y
         self.rect.x = x
         self.rect.y = y - height  # Position sur la plateforme
         self.width = width
@@ -33,6 +37,19 @@ class Enemy(pygame.sprite.Sprite):
         self.detection_radius = 300  # Distance de détection du joueur
         self.cooldown = 0
         self.cooldown_max = 60
+
+        self.loadEnnemyTexture("assets/ennemy.png")
+
+    def loadEnnemyTexture(self, image_path):
+        """
+        Charge une texture pour l'ennemi
+        :param image_path: Chemin de l'image
+        """
+        try:
+            self.textureSurface = pygame.image.load(image_path).convert_alpha()
+            self.textureSurface = pygame.transform.scale(self.textureSurface, (self.width, self.height))
+        except Exception as e:
+            print(f"Erreur lors du chargement de la texture de l'ennemi : {e}")
 
     def update(self, platforms, player=None, env=None):
         """
@@ -184,13 +201,19 @@ class Enemy(pygame.sprite.Sprite):
                 return None
 
         return self.current_platform  # L'ennemi est toujours sur la même plateforme
-
+    def updatePosTexture(self):
+        self.texture.x = self.rect.x
+        self.texture.y = self.rect.y
     def draw(self):
         """
         Dessine l'ennemi sur l'écran
         :return:
         """
+        # rect_camera = self.camera.apply(self)
+        # self.screen.blit(self.image, rect_camera)
+        # Dessiner l'ennemi
+        self.updatePosTexture()
         rect_camera = self.camera.apply(self)
-        self.screen.blit(self.image, rect_camera)
+        self.screen.blit(self.textureSurface, rect_camera)
         for projectile in self.projectiles:
             projectile.draw(self.screen, self.camera)
