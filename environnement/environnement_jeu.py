@@ -7,7 +7,7 @@ screen_height = 720
 screen = pygame.display.set_mode((screen_width, screen_height))
 
 
-def generer_niveau_coherent(largeur_totale=3840):  # 1280 * 3 = largeur par défaut
+def generer_niveau_coherent(largeur_totale=1280*2):  # 1280 * 2 = largeur par défaut
     """
     Génère un niveau de jeu avec des plateformes, des éléments au sol et des power-ups.
     :param largeur_totale: Largeur totale du niveau

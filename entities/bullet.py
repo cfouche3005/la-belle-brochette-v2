@@ -67,7 +67,8 @@ class Bullet(pygame.sprite.Sprite):
         Check if the bullet is out of the screen
         :return: True if the bullet is out of the screen, False otherwise
         """
-        if self.rect.x > self.env.screenWidth or self.rect.x < 0 or self.rect.y > self.env.screenHeight or self.rect.y < 0:
+        print(self.env.screenWidth)
+        if self.rect.x > self.env.width or self.rect.x < 0 or self.rect.y > self.env.height or self.rect.y < 0:
             return True
         return False
 
