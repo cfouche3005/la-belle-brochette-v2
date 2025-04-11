@@ -7,6 +7,18 @@ from game.env import Env
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, color=(0, 0, 255), angle=0, env: Env = None, Callback=None, speed = 100):
+        """
+        Initialize the bullet object
+        :param x: Origin x position of the bullet
+        :param y: Origin y position of the bullet
+        :param width: Width of the bullet
+        :param height: Height of the bullet
+        :param color: Color of the bullet
+        :param angle: Angle of the bullet in degrees
+        :param env: The environment where the bullet is created
+        :param Callback: Function to call when the bullet collides with a platform or an enemy
+        :param speed: Speed of the bullet
+        """
         super().__init__()
         self.image = pygame.Surface((width, height))
         self.image.fill(color)
@@ -20,6 +32,12 @@ class Bullet(pygame.sprite.Sprite):
         self.env = env
         self.callback = Callback
     def draw(self, surface, camera):
+        """
+        Draw the bullet on the screen
+        :param surface: The surface to draw the bullet on
+        :param camera: The camera used to manage the view
+        :return:
+        """
         self.move()
         rect_camera = camera.apply(self)
         surface.blit(self.image, rect_camera)
