@@ -21,6 +21,14 @@ ELEMENT_TEXTUREPATH = {
 
 class Env:
     def __init__(self, width : int, height : int, background : str, screenInstance : pygame.Surface, camera: Camera):
+        """
+        Initialize the game environment
+        :param width: The width of the environment
+        :param height: The height of the environment
+        :param background: Path to the background image
+        :param screenInstance: The screen instance where the environment will be drawn
+        :param camera: The camera instance used to manage the view
+        """
         self.screenWidth = width
         self.invisibleWidth = 200
         self.screenHeight = height
@@ -50,7 +58,12 @@ class Env:
         self.loadPowerUps()
         self.spawnEnemies(5)
 
-    def spawnEnemies(self, count):
+    def spawnEnemies(self, count: int):
+        """
+        Spawn enemies on the platforms
+        :param count: Number of enemies to spawn
+        :return:
+        """
         valid_platforms = [p for p in self.platforms if p.type != "escalier"]
         if not valid_platforms:
             return
@@ -64,6 +77,10 @@ class Env:
             enemy.current_platform = platform
             self.enemies.add(enemy)
     def loadbackground(self):
+        """
+        Load the background image and scale it to fit the environment
+        :return:
+        """
         try:
             self.background = pygame.image.load(self.background_path).convert()
             self.background = pygame.transform.scale(self.background, (self.width, self.height))
@@ -74,6 +91,10 @@ class Env:
             print(f"Error loading background: {e}")
 
     def loadPlatforms(self):
+        """
+        Load the platforms in the environment
+        :return:
+        """
         for x, y, width, height, platform_type in plateformes_fixes:
             texture = None
             if platform_type == "escalier":
@@ -85,6 +106,10 @@ class Env:
             platform = Plateforme(x, y, width, height, texture, platform_type)
             self.platforms.add(platform)
     def loadPowerUps(self):
+        """
+        Load the power-ups in the environment
+        :return:
+        """
         for pos in positions_powerups:
             x, y, power_up_type = pos
             print(pos)
@@ -94,12 +119,20 @@ class Env:
                 self.power_ups.add(Kit_Med(x, y))
 
     def loadElements(self):
+        """
+        Load the elements in the environment
+        :return:
+        """
         for x, y, type_element in elements_sol_fixes:
             if type_element in ELEMENT_TEXTUREPATH:
                 element = ElementAuSol(x, y, 50, 50, ELEMENT_TEXTUREPATH[type_element], type_element)
                 self.element_group.add(element)
 
     def draw(self):
+        """
+        Draw the environment on the screen
+        :return:
+        """
         bg_rect = pygame.Rect(self.x + self.camera.offset_x, self.y, self.width, self.height)
         self.screen.blit(self.background, bg_rect)
         for platform in self.platforms:
@@ -112,7 +145,11 @@ class Env:
             enemy.draw()
 
     def update(self, player):
-        """Met à jour l'état des ennemis"""
+        """
+        Update the environment
+        :param player: Player instance
+        :return:
+        """
         for enemy in self.enemies:
             enemy.update(self.platforms, player, self)
     def checkCollisionWithEnnemy(self, rect: pygame.Rect):
@@ -136,12 +173,20 @@ class Env:
             enemy.kill()
 
     def moveRight(self):
+        """
+        Move the environment to the right
+        :return:
+        """
         self.x -= 5
         if self.x < -self.width + self.screenWidth:
             self.x = -self.width + self.screenWidth
             return False
         return True
     def moveLeft(self):
+        """
+        Move the environment to the left
+        :return:
+        """
         self.x += 5
         if self.x > 0:
             self.x = 0
