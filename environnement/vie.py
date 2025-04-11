@@ -27,9 +27,8 @@ class BarreDeVie:
 
     def draw(self, screen):
         """
-        Draw the life bar on the screen.
+        Dessiner la barre de vie du personnage en haut à gauche
         :param screen:  The screen where the life bar will be drawn.
-        :return:
         """
         for i in range(self.vies):
             screen.blit(self.coeur_image, (self.x + i * 45, self.y))
