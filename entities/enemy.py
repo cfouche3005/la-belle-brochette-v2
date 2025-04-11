@@ -1,9 +1,11 @@
+import math
+
 import pygame
 import random
 
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, x, y, width=30, height=30):
+    def __init__(self, x, y, width=30, height=30, screen=None, camera=None):
         super().__init__()
         self.image = pygame.Surface((width, height))
         self.image.fill((0, 0, 255))  # Carré bleu
@@ -16,8 +18,14 @@ class Enemy(pygame.sprite.Sprite):
         self.direction = -1  # -1 pour gauche, 1 pour droite
         self.current_platform = None
         self.falling = False
+        self.screen = screen
+        self.camera = camera
+        self.projectiles = []
+        self.detection_radius = 300  # Distance de détection du joueur
+        self.cooldown = 0
+        self.cooldown_max = 60
 
-    def update(self, platforms):
+    def update(self, platforms, player=None, env=None):
         # Trouver la plateforme actuelle
         self.current_platform = self.get_current_platform(platforms)
 
@@ -31,16 +39,67 @@ class Enemy(pygame.sprite.Sprite):
             # Aligner avec le haut de la plateforme
             self.rect.bottom = self.current_platform.rect.top
 
-        # Vérifier la plateforme suivante
-        next_platform = self.check_adjacent_platform(platforms)
+            # Vérifier la plateforme suivante
+            next_platform = self.check_adjacent_platform(platforms)
 
-        # Si bord de plateforme ou escalier, changer de direction
-        if next_platform is None:
-            self.direction *= -1
+            # Si bord de plateforme ou escalier, changer de direction
+            if next_platform is None:
+                self.direction *= -1
 
-        # Déplacement horizontal
-        self.rect.x += self.speed * self.direction
+            # Déplacement horizontal
+            self.rect.x += self.speed * self.direction
 
+        if player and env and not self.falling:
+            # Décrémentation du cooldown
+            if self.cooldown > 0:
+                self.cooldown -= 1
+
+            # Détection du joueur
+            if self.player_in_range(player) and self.cooldown == 0:
+                self.shoot(player, env)
+                self.cooldown = self.cooldown_max
+
+        # Mise à jour des projectiles
+        for projectile in self.projectiles[:]:
+            if projectile in self.projectiles:  # Vérification pour éviter les erreurs
+                if player and projectile.rect.colliderect(player.hitbox):
+                    player.vie.perdre_vie(1)
+                    self.delete_projectile(projectile)
+
+    def player_in_range(self, player):
+        """Vérifie si le joueur est à portée de tir"""
+        distance_x = self.rect.centerx - player.hitbox.centerx
+        distance_y = self.rect.centery - player.hitbox.centery
+        distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
+        return distance <= self.detection_radius
+
+    def shoot(self, player, env):
+        """Tire une balle en direction du joueur"""
+        # Calcul de l'angle vers le joueur
+
+        from entities.bullet import Bullet
+        dx = player.hitbox.centerx - self.rect.centerx
+        dy = player.hitbox.centery - self.rect.centery
+        angle = math.degrees(math.atan2(-dy, dx))  # Angle en degrés
+
+        # Création de la balle (rouge pour l'ennemi)
+        bullet = Bullet(
+            self.rect.centerx,
+            self.rect.centery,
+            8, 8,
+            (255, 0, 0),  # Rouge pour les balles ennemies
+            angle,
+            env,
+            lambda: self.delete_projectile(bullet),
+            50
+        )
+        self.projectiles.append(bullet)
+
+    def delete_projectile(self, projectile):
+        """Supprime un projectile de la liste"""
+        if projectile in self.projectiles:
+            self.projectiles.remove(projectile)
+            projectile.kill()
     def get_current_platform(self, platforms):
         """Déterminer sur quelle plateforme se trouve l'ennemi"""
         for platform in platforms:
@@ -96,6 +155,8 @@ class Enemy(pygame.sprite.Sprite):
 
         return self.current_platform  # L'ennemi est toujours sur la même plateforme
 
-    def draw(self, surface, camera):
-        rect_camera = camera.apply(self)
-        surface.blit(self.image, rect_camera)
+    def draw(self):
+        rect_camera = self.camera.apply(self)
+        self.screen.blit(self.image, rect_camera)
+        for projectile in self.projectiles:
+            projectile.draw(self.screen, self.camera)
