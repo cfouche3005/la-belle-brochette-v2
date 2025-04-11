@@ -4,12 +4,13 @@ from entities.player.player import Player
 from game.env import Env
 from game.camera import Camera
 from menu.menu import Menu
-from entities.staticblock import StaticBlock
-from environnement.vie import BarreDeVie
-from environnement.environnement_jeu import Chargeur, Kit_Med, positions_powerups
 
 class Runtime():
     def __init__(self, window_size):
+        """
+        Initialize the game runtime.
+        :param window_size:
+        """
         # Initialisation de Pygame
         pygame.init()
         pygame.font.init()
@@ -97,6 +98,7 @@ class Runtime():
         self.menu = menu
 
     def changeToGame(self):
+        """Change l'état du jeu vers le mode jeu."""
         self.setup()
         self.changeGameState("game")
 
