@@ -32,7 +32,7 @@ class Env:
         self.screenWidth = width
         self.invisibleWidth = 200
         self.screenHeight = height
-        self.width = width*3
+        self.width = width*2
         self.height = height
         self.x = 0
         self.y = 0
@@ -152,6 +152,8 @@ class Env:
         """
         for enemy in self.enemies:
             enemy.update(self.platforms, player, self)
+        if self.getNumberOfEnemies() < 5:
+            self.spawnMoreEnemies(1)
     def checkCollisionWithEnnemy(self, rect: pygame.Rect):
         """
         Check if the rect collides with any enemy
@@ -163,6 +165,27 @@ class Env:
                 self.killEnemy(enemy)
                 return True
         return False
+    def spawnMoreEnemies(self, count: int):
+        """
+        Spawn more enemies in the environment
+        :param count: Number of enemies to spawn
+        :return:
+        """
+        for _ in range(count):
+            platform = random.choice(self.platforms.sprites())
+            x = random.randint(platform.rect.left, platform.rect.right - 30)
+            y = platform.rect.top
+
+            enemy = Enemy(x, y, 30, 30, self.screen, self.camera)
+            enemy.current_platform = platform
+            print("Spawned enemy at", x, y)
+            self.enemies.add(enemy)
+    def getNumberOfEnemies(self):
+        """
+        Get the number of enemies in the environment
+        :return: Number of enemies
+        """
+        return len(self.enemies)
     def killEnemy(self, enemy):
         """
         Kill the enemy
