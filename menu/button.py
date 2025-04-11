@@ -4,6 +4,7 @@ class buttonClass:
 
     def __init__(self, screen, position: tuple, size: tuple, clr : tuple = (100,100,100), radius : int = 14, cngclr: tuple = None, func: callable = None, text: str = '', font_size: int = 16, font_clr: list = [0,0,0]):
         """
+        Button class to create a button in the menu
 
         :param screen: Screen to draw the button on
         :param position: Position of the button (x, y)
@@ -15,6 +16,7 @@ class buttonClass:
         :param text: Text to display on the button
         :param font_size: Size of the font
         :param font_clr: Color of the font (R, G, B)
+
         """
         self.position = position
         self.size = size
@@ -41,12 +43,20 @@ class buttonClass:
         print(self.txt_rect)
 
     def mouseover(self):
+        """
+        Check if the mouse is over the button and change the color accordingly
+        :return:
+        """
         self.curclr = self.clr
         pos = pygame.mouse.get_pos()
         if self.rect.collidepoint(pos):
             self.curclr = self.cngclr
 
     def draw(self):
+        """
+        Draw the button on the screen
+        :return:
+        """
         self.mouseover()
 
         self.surf.fill((0, 0, 0, 0))
@@ -56,6 +66,11 @@ class buttonClass:
         self.screen.blit(self.surf, self.rect)
 
     def call_back(self, *args):
+        """
+        Call the function associated with the button when clicked
+        :param args:
+        :return:
+        """
         if self.func:
             self.func(*args)
 
