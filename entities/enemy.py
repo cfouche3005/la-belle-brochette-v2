@@ -6,6 +6,15 @@ import random
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, width=30, height=30, screen=None, camera=None):
+        """
+        Classe représentant un ennemi dans le jeu.
+        :param x: Origine en x de l'ennemi
+        :param y: Origine en y de l'ennemi
+        :param width: Largeur de l'ennemi
+        :param height: Hauteur de l'ennemi
+        :param screen: Surface de jeu sur laquelle l'ennemi sera dessiné
+        :param camera: Instance de la caméra pour le défilement
+        """
         super().__init__()
         self.image = pygame.Surface((width, height))
         self.image.fill((0, 0, 255))  # Carré bleu
@@ -26,6 +35,13 @@ class Enemy(pygame.sprite.Sprite):
         self.cooldown_max = 60
 
     def update(self, platforms, player=None, env=None):
+        """
+        Met à jour la position de l'ennemi et gère les interactions avec le joueur.
+        :param platforms: Liste des plateformes sur lesquelles l'ennemi peut se déplacer
+        :param player: Instance du joueur pour la détection de collision
+        :param env: Instance de l'environnement pour la gestion des projectiles
+        :return:
+        """
         # Trouver la plateforme actuelle
         self.current_platform = self.get_current_platform(platforms)
 
@@ -67,14 +83,21 @@ class Enemy(pygame.sprite.Sprite):
                     self.delete_projectile(projectile)
 
     def player_in_range(self, player):
-        """Vérifie si le joueur est à portée de tir"""
+        """Vérifie si le joueur est à portée de tir
+        :param player: Instance du joueur
+        :return: True si le joueur est dans la portée, False sinon
+        """
         distance_x = self.rect.centerx - player.hitbox.centerx
         distance_y = self.rect.centery - player.hitbox.centery
         distance = math.sqrt(distance_x ** 2 + distance_y ** 2)
         return distance <= self.detection_radius
 
     def shoot(self, player, env):
-        """Tire une balle en direction du joueur"""
+        """Tire une balle en direction du joueur
+
+        :param player: Instance du joueur
+        :param env: Instance de l'environnement pour la gestion des projectiles
+        """
         # Calcul de l'angle vers le joueur
 
         from entities.bullet import Bullet
@@ -96,12 +119,18 @@ class Enemy(pygame.sprite.Sprite):
         self.projectiles.append(bullet)
 
     def delete_projectile(self, projectile):
-        """Supprime un projectile de la liste"""
+        """Supprime un projectile de la liste
+
+        :param projectile: Instance du projectile à supprimer
+        """
         if projectile in self.projectiles:
             self.projectiles.remove(projectile)
             projectile.kill()
     def get_current_platform(self, platforms):
-        """Déterminer sur quelle plateforme se trouve l'ennemi"""
+        """Déterminer sur quelle plateforme se trouve l'ennemi
+
+        :param platforms: Liste des plateformes
+        """
         for platform in platforms:
             # Utiliser une tolérance verticale de quelques pixels
             if (abs(self.rect.bottom - platform.rect.top) <= 5 and
@@ -111,7 +140,8 @@ class Enemy(pygame.sprite.Sprite):
         return None
 
     def check_adjacent_platform(self, platforms):
-        """Vérifie s'il existe une plateforme adjacente dans la direction actuelle"""
+        """Vérifie s'il existe une plateforme adjacente dans la direction actuelle
+        :param platforms: Liste des plateformes"""
         if not self.current_platform:
             return None
 
@@ -156,6 +186,10 @@ class Enemy(pygame.sprite.Sprite):
         return self.current_platform  # L'ennemi est toujours sur la même plateforme
 
     def draw(self):
+        """
+        Dessine l'ennemi sur l'écran
+        :return:
+        """
         rect_camera = self.camera.apply(self)
         self.screen.blit(self.image, rect_camera)
         for projectile in self.projectiles:
