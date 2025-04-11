@@ -13,6 +13,7 @@ class Menu:
 
     def addButton(self, x: int, y :int, width: int, height: int, text : str, fontsize :int, radius : int, inactiveColor : tuple, hoverColor: tuple, onClick: callable):
         """
+        Function to add a button to the menu
 
         :param x: The x position of the button
         :param y: The y position of the button
@@ -40,6 +41,7 @@ class Menu:
         self.buttons.append(button)
     def addText(self, x: int, y :int, txt : str, fontsize :int, color: tuple):
         """
+        Function to add a text to the menu
 
         :param x: The x position of the text
         :param y: The y position of the text
@@ -60,6 +62,11 @@ class Menu:
         self.texts.append(tempText)
 
     def detect_click(self, events):
+        """
+        Function to detect a click on the menu
+        :param events: The pygame events to check
+        :return:
+        """
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
@@ -96,7 +103,10 @@ class Menu:
         self.background = pygame.image.load(image_path)
         self.background = pygame.transform.scale(self.background, (self.screen.get_width(), self.screen.get_height()))
     def draw(self):
-
+        """
+        Function to draw the menu on the screen
+        :return:
+        """
         if hasattr(self, 'background'):
             self.screen.blit(self.background, (0, 0))
         for button in self.buttons:
